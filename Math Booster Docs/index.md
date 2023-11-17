@@ -1,7 +1,4 @@
-# Math Booster
-
-> [!Warning]
-> This documentation is for Math Booster version 2, and it's still alpha. You can manually install it from the [GitHub page](https://github.com/RyotaUshio/obsidian-math-booster/releases). The docs for version 1 can be found [here](https://ryotaushio.github.io/obsidian-math-booster/).
+# Math Booster version 2
 
 [Math Booster](https://github.com/RyotaUshio/obsidian-math-booster) is an [Obsidian](https://obsidian.md) plugin for mathematical note-takers.
 
@@ -12,12 +9,20 @@
 - [[Rendering equations inside callouts]]
 - [[Multi-line equation support inside blockquotes]]
 - [[Clever referencing]]
-- [[Search & link auto-completion]]
-- [[Proof environments|Proof environments (experimental)]]
+- [[Search modal]]
+- [[Proof environment|Proof environment (experimental)]]
 
 ## Installation
 
-Version 2 is still alpha, and it's only available via manual installation. Download `main.js`, `styles.css`, and `manifest.json` to your `.obsidian/plugins/math-booster` folder and then reload Math Booster.
+Since version 2 is still beta, it's not on the community plugin browser yet.
+
+But you can install the latest beta release using [BRAT](obsidian://show-plugin?id=obsidian42-brat):
+
+1.  Install BRAT and enable it.
+2.  Go to `Options`. In the `Beta Plugin List` section, click on the `Add Beta plugin` button.
+3.  Copy and paste `RyotaUshio/obsidian-math-booster` in the pop-up prompt and click on **Add Plugin**.
+4.  _(Optional but highly recommended)_ Turn on `Auto-update plugins at startup` at the top of the page.
+5.  Go to `Community plugins > Installed plugins`. You will find “Math Booster” in the list. Click on the toggle button to enable it.
 
 ## Dependencies
 
@@ -25,7 +30,7 @@ Version 2 is still alpha, and it's only available via manual installation. Downl
 
 Math Booster requires [MathLinks](https://github.com/zhaoshenzhai/obsidian-mathlinks) version 0.5.1 or higher installed to work properly ([[Clever referencing]]).
 
-In version 2, [Dataview](https://github.com/blacksmithgu/obsidian-dataview) is no longer required. But I strongly recommend installing it because it enhances Math Booster's [[Search & link auto-completion#Dataview queries|search]] functionality significantly.
+In version 2, [Dataview](https://github.com/blacksmithgu/obsidian-dataview) is no longer required. But I strongly recommend installing it because it enhances Math Booster's [[Search modal#Dataview queries|search]] functionality significantly.
 
 ### Fonts
 

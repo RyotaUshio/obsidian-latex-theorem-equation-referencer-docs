@@ -13,7 +13,20 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "index.md",
+                "file": "Proof environment.md",
+                "mode": "source",
+                "backlinks": true,
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "62cbc0e5363aaa13",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Theorem callouts/Style your theorems.md",
                 "mode": "source",
                 "backlinks": true,
                 "source": false
@@ -94,7 +107,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "index.md",
+                "file": "Proof environment.md",
                 "collapseAll": false,
                 "extraContext": true,
                 "sortOrder": "byModifiedTime",
@@ -111,7 +124,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "index.md",
+                "file": "Proof environment.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -200,7 +213,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "index.md"
+                "file": "Proof environment.md"
               }
             }
           }
@@ -227,28 +240,40 @@
   },
   "active": "3335d3db1f6c9281",
   "lastOpenFiles": [
-    "Search & link auto-completion.md",
+    "Untitled.md",
+    "Proof environment.md",
     "index.md",
-    "Theorem callouts.md",
-    "Rendering equations inside callouts.md",
-    "Proof environments.md",
     "Equations.md",
-    "Multi-line equation support inside blockquotes.md",
-    "Profiles.md",
     "Clever referencing.md",
+    "Theorem callouts/Theorem callouts.md",
+    "Theorem callouts/Style your theorems.md",
+    "Settings/Settings.md",
+    "Settings/Profiles.md",
+    "Settings/Local settings.md",
+    "Search & link auto-completion/Search modal.md",
+    "Search & link auto-completion/Auto-completion.md",
+    "Extending Obsidian's math rendering functionalities/Rendering equations inside callouts.md",
+    "Extending Obsidian's math rendering functionalities/Multi-line equation support inside blockquotes.md",
+    "Assets/Equations-20231118084238497.webp",
+    "Assets/Equation numbers-20231117195938005.webp",
+    "Assets/theorem styles/vivid-light.png",
+    "Assets/theorem styles/vivid-dark.png",
+    "Assets/theorem styles/mathwiki.png",
+    "Assets/theorem styles/framed.png",
+    "Assets/theorem styles/framed-dark.png",
+    "Assets/theorem styles/plain.png",
+    "Assets/theorem styles/plain-dark.png",
+    "Assets/theorem styles",
+    "Extending Obsidian's math rendering functionalities",
+    "Settings",
+    "Assets/tag.gif",
+    "Theorem callouts",
+    "Search & link auto-completion",
     "Embed target.md",
     "Embeds.md",
-    "Assets/Theorem callouts-20231117082725480.webp",
-    "Assets/Equation numbers-20231117090917190.webp",
-    "Assets/Equation numbers-20231117090835247.webp",
-    "Assets/Equation numbers-20231117091624506.webp",
-    "Assets/Equation numbers-20231117195856635.webp",
     "Rendering LaTeX/MathJax inside callouts.md",
     "Rendering LaTeX",
-    "Assets/Equation numbers-20231117200012405.webp",
-    "Assets/Equation numbers-20231117195938005.webp",
     "Theorem callouts-20231117082535872.webp.md",
-    "Assets/Theorem callouts-20231117082535872.webp",
     "Assets",
     "Shared/sec/Foundations of Machine Learning/8. On-Line Learning.md",
     "Inbox/Math Booster 開発.md",
@@ -257,22 +282,9 @@
     "Shared/sec/convex_analysis/9 2.md",
     "Shared/sec/convex_analysis/8 2.md",
     "Shared/sec/convex_analysis/8.md",
-    "Shared/sec/convex_analysis/6/6-1.md",
-    "Shared/sec/convex_analysis/6/6.md",
-    "Shared/sec/convex_analysis/5.md",
-    "Shared/sec/convex_analysis/4.md",
-    "Shared/sec/convex_analysis/3 2.md",
-    "Shared/sec/convex_analysis/3.md",
-    "Credential/保険証裏.jpg",
-    "Credential/保険証表.jpg",
     "Credential/保険証表",
     "GoodNotes/ML-Stat/High-Dimensional Statistics - Martin J. Wainwright (1)/10. Matrix estimation with rank constraints.pdf",
     "GoodNotes/ML-Stat/High-Dimensional Statistics - Martin J. Wainwright/13. Nonparametric least squares.pdf",
-    "GoodNotes/ML-Stat/High-Dimensional Statistics - Martin J. Wainwright/12. Reproducing kernel Hilbert spaces.pdf",
-    "GoodNotes/ML-Stat/High-Dimensional Statistics - Martin J. Wainwright/10. Matrix estimation with rank constraints.pdf",
-    "GoodNotes/ML-Stat/High-Dimensional Statistics - Martin J. Wainwright/6. Random matrices and covariance estimation.pdf",
-    "GoodNotes/ML-Stat/High-Dimensional Statistics - Martin J. Wainwright/2. Basic tail and concentration bounds.pdf",
-    "GoodNotes/ML-Stat/High-Dimensional Statistics - Martin J. Wainwright/3. Concentration of measure.pdf",
     "Untitled 2 1.canvas",
     "Untitled 2.canvas",
     "Untitled.canvas",

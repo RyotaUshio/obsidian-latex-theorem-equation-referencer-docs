@@ -1,8 +1,8 @@
 {
   "inlineCSS": false,
   "inlineJS": false,
-  "inlineImages": false,
-  "includePluginCSS": "",
+  "inlineImages": true,
+  "includePluginCSS": "math-booster\nbetter-search-views\nobsidian-columns",
   "includeSvelteCSS": true,
   "makeNamesWebStyle": true,
   "allowFoldingHeadings": true,
@@ -11,7 +11,7 @@
   "minifyHTML": true,
   "customLineWidth": "",
   "contentWidth": "",
-  "sidebarWidth": "",
+  "sidebarWidth": "20em",
   "startOutlineCollapsed": false,
   "logLevel": "warning",
   "incrementalExport": false,
@@ -32,19 +32,19 @@
   "exportPath": "/Users/ryotaushio/Documents/GitHub/math-booster-docs/docs",
   "filesToExport": [
     [
-      "Assets/Equation numbers-20231117195856635.webp",
-      "Assets/Equation numbers-20231117195938005.webp",
-      "Assets/Equation numbers-20231117200012405.webp",
-      "Assets/Theorem callouts-20231117082725480.webp",
+      "Extending Obsidian's math rendering functionalities/Multi-line equation support inside blockquotes.md",
+      "Extending Obsidian's math rendering functionalities/Rendering equations inside callouts.md",
+      "Search & link auto-completion/Auto-completion.md",
+      "Search & link auto-completion/Search modal.md",
+      "Settings/Local settings.md",
+      "Settings/Profiles.md",
+      "Settings/Settings.md",
+      "Theorem callouts/Style your theorems.md",
+      "Theorem callouts/Theorem callouts.md",
       "Clever referencing.md",
-      "Equation numbers.md",
+      "Equations.md",
       "index.md",
-      "Multi-line equation support inside blockquotes.md",
-      "Profiles.md",
-      "Proof environments.md",
-      "Rendering equations inside callouts.md",
-      "Search & link auto-completion.md",
-      "Theorem callouts.md"
+      "Proof environment.md"
     ]
   ]
 }
