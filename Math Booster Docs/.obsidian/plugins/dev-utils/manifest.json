@@ -1,0 +1,11 @@
+{
+	"id": "dev-utils",
+	"name": "Dev Utils",
+	"version": "0.1.0",
+	"minAppVersion": "1.4.16",
+	"description": "A collection of useful tools mainly for developers.",
+	"author": "Ryota Ushio",
+	"authorUrl": "https://github.com/RyotaUshio",
+	"fundingUrl": "https://www.buymeacoffee.com/ryotaushio",
+	"isDesktopOnly": false
+}

@@ -1,0 +1,23 @@
+:root {
+  --blockquote-vertical-padding: 12px;
+}
+
+blockquote, .HyperMD-quote {
+  --blockquote-border-color: hsl(var(--accent-h), var(--accent-s), 36%);
+  --blockquote-border-thickness: 5px;
+  --blockquote-color: var(--text-normal);
+  --blockquote-background-color: rgba(var(--callout-quote), 0.09);
+}
+
+.cm-line:not(.HyperMD-quote) + .cm-line.HyperMD-quote {
+  padding-top: var(--blockquote-vertical-padding);
+}
+
+.cm-line.HyperMD-quote:has( + .cm-line:not(.HyperMD-quote)) {
+  padding-bottom: var(--blockquote-vertical-padding);
+}
+
+blockquote {
+  padding-top: var(--blockquote-vertical-padding) !important;
+  padding-bottom: var(--blockquote-vertical-padding) !important;
+}

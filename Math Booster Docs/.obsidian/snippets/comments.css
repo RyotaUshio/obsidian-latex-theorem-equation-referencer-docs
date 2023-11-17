@@ -1,0 +1,4 @@
+.cm-comment {
+    font-family: var(--font-monospace) !important;
+    color: var(--code-comment) !important;
+}

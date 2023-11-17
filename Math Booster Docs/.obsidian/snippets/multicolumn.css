@@ -1,0 +1,5 @@
+/* Small appearance tweaks for multi-line markdown rendered with https://github.com/tnichols217/obsidian-columns */
+
+.columnParent pre {
+    font-size: var(--font-smaller);
+}

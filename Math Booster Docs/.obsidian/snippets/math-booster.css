@@ -1,0 +1,25 @@
+/* Mathematical notes in Japanese */
+.math-booster-en:not(.math-booster-nonmath),
+.math-booster-ja:not(.math-booster-nonmath) {
+  --font-text: CMU Serif, Noto Serif JP;
+  --font-editor: var(--font-text); /* for Minimal theme */
+  .cm-strong,
+    strong {
+        font-family: CMU Serif, Noto Sans JP;
+        font-weight: 500, 600;
+  }
+}
+
+.math-booster-ja:not(.math-booster-nonmath) {
+  --line-height-normal: 1.75;
+  --line-height: var(--line-height-normal); /* for Minimal theme */
+}
+
+:not(.math-booster-nonmath) mjx-container mjx-utext { 
+  font-family: CMU Serif, Noto Serif JP !important;
+}
+
+/* Non-mathematical notes in Japanese */
+.math-booster-ja.math-booster-nonmath {
+  --line-height-normal: 1.6;
+}

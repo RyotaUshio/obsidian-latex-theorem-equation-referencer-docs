@@ -1,0 +1,10 @@
+/* https://www.reddit.com/r/ObsidianMD/comments/xd0sir/hidden_block_id_snippet/ */
+
+/* Hide block IDs on inactive lines */
+.cm-blockid {
+    opacity: 0.2;
+}
+/* Show block IDs on active lines */
+.cm-active .cm-blockid {
+    opacity: 0.7;
+}

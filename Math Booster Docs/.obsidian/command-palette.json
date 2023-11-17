@@ -1,0 +1,10 @@
+{
+  "pinned": [
+    "app:delete-file",
+    "file-explorer:reveal-active-file",
+    "quickadd:choice:60e196dd-5afc-43fc-8b28-8d2374af7df4",
+    "obsidian-excalidraw-plugin:excalidraw-autocreate-newtab",
+    "quickadd:runQuickAdd",
+    "obsidian-style-settings:show-style-settings-leaf"
+  ]
+}

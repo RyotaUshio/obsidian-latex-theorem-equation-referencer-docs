@@ -1,0 +1,21 @@
+/* :root {
+  --base-h: 0;
+  --base-s: 0%;
+  --base-l: 96%;
+  --h1l: hsl( var(--base-h), var(--base-s), calc(var(--base-l) + 6%) );
+}
+
+body {
+    --h1-size: 1.802em;
+    --h2-size: 1.602em;
+    --h3-size: 1.424em;
+    --h4-size: 1.266em;
+    --h5-size: 1.125em;
+    --h6-size: 1em;
+} */
+
+.mod-cm6 .cm-editor .HyperMD-header, h1, h2, h3, h4, h5, h6 {
+  border-bottom: 1px solid rgb(74, 74, 74);
+  padding-bottom: 0.4em;
+  margin-block-end: 0.6em;
+}

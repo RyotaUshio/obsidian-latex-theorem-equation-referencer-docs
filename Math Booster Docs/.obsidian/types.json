@@ -1,0 +1,18 @@
+{
+  "types": {
+    "aliases": "aliases",
+    "cssclasses": "multitext",
+    "tags": "tags",
+    "links": "multitext",
+    "artist": "multitext",
+    "synonym": "multitext",
+    "derivative": "multitext",
+    "antonym": "multitext",
+    "part-of-speech": "multitext",
+    "author": "multitext",
+    "year": "text",
+    "date": "date",
+    "bpm": "number",
+    "order": "number"
+  }
+}

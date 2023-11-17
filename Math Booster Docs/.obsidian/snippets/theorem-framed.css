@@ -1,0 +1,23 @@
+.theorem-callout {
+    --callout-color: 248, 248, 255;
+    background-color: rgb(255, 255, 255, 0.03);
+    border: solid;
+    border-radius: 6px;
+}
+
+.theorem-callout .callout-icon {
+    display: none;
+}
+
+.theorem-callout .callout-title-inner {
+    font-style: bold;
+}
+
+.theorem-callout-subtitle {
+    font-weight: 400;
+}
+
+/* .theorem-callout-en .callout-content {
+    font-style: italic;
+}
+ */

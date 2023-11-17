@@ -1,0 +1,4 @@
+li[data-footnote-id],
+.HyperMD-footnote {
+    color: var(--text-muted);
+}
