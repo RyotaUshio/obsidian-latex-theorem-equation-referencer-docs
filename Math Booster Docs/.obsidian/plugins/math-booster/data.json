@@ -31,8 +31,8 @@
       "lineByLine": false,
       "theoremCalloutStyle": "Framed",
       "theoremCalloutFontInherit": false,
-      "beginProof": "\\begin{proof}",
-      "endProof": "\\end{proof}",
+      "beginProof": "BEGINPROOF",
+      "endProof": "ENDPROOF",
       "insertSpace": true
     }
   },

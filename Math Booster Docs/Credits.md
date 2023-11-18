@@ -30,4 +30,4 @@ This aesthetic preset style [[Styling#MathWiki style|"MathWiki"]] was taken from
 
 ## And of course...
 
-A big thank you for the Obsidian team for prividing the foundation for the entire great ecosystem.
+A big thank you to the Obsidian team for prividing the foundation for the entire great ecosystem.
