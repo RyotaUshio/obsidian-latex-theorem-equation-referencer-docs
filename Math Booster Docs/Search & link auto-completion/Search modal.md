@@ -1,6 +1,13 @@
 # Search modal
 
-Similar to [[Auto-completion]], but available as a search modal like [Quick Switcher](https://help.obsidian.md/Plugins/Quick+switcher) along with further search control functionalities.
+Run the `Search` command to open a search modal.
+
+This is similar to [[Editor auto-completion]], but available as a search modal like [Quick Switcher](https://help.obsidian.md/Plugins/Quick+switcher) along with further search control functionalities.
+
+> [!tip] Search modal can be controled by keyboard alone without mouse
+> Use the `Tab`/`Shift`+`Tab` to move back and forth between the search window and two drop-down menus (`Query type` & `Search range`).
+> 
+> Also, you can use `Shift`+`ArrowUp`/`Shift`+`ArrowDown` to move around in each dropdown menu.
 
 ### Query type
 
@@ -14,7 +21,7 @@ Specify the range of files to be searched. Available options are:
 - Vault: the entire vault
 - Recent notes: recently opened notes
 - Active note: the note currently edited
-- Dataview query: filter notes by powerful Dataview queries. Only available if Dataview is enabled.
+- Dataview query: filter notes by powerful [Dataview](https://blacksmithgu.github.io/obsidian-dataview/) queries. Only available if Dataview is enabled.
 
 #### Dataview queries
 
@@ -35,4 +42,3 @@ Note that only [LIST queries](https://blacksmithgu.github.io/obsidian-dataview/q
 >   ```
 >   LIST WHERE file.cday >= date("2023-11-01")
 >   ```
-

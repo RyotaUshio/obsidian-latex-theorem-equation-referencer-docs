@@ -2,6 +2,9 @@
 
 [Math Booster](https://github.com/RyotaUshio/obsidian-math-booster) is an [Obsidian](https://obsidian.md) plugin for mathematical note-takers.
 
+> [!remark] Major version update
+> Using Math Booster since version 1? See [[Migration from Version 1]].
+
 ## Features
 
 - [[Theorem callouts|Theorem environments]]
@@ -14,7 +17,7 @@
 
 ## Installation
 
-Since version 2 is still beta, it's not on the community plugin browser yet.
+Since version 2 is still in beta, it's not on the community plugin browser yet.
 
 But you can install the latest beta release using [BRAT](obsidian://show-plugin?id=obsidian42-brat):
 
@@ -50,7 +53,7 @@ This documentation is generated from an Obsidian vault located under the `Math B
 3. Make changes in Obsidian so that links are properly updated.
 4. Commit & push your changes to the fork and [make a pull request](https://docs.github.com/ja/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request) to the original repository.
 
-> [!info]
+> [!remark] Webpage HTML Export
 > This documentation website is generated from the `Math Booster Docs` vault using the awesome [Webpage HTML Export](https://github.com/KosmosisDire/obsidian-webpage-export) plugin.
 
 ## Say thank you

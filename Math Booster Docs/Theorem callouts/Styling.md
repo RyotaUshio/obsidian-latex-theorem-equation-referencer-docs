@@ -1,4 +1,4 @@
-# Style your theorems
+# Styling
 
 You can customize the appearance of theorem callouts either by **your own custom [CSS snippets](https://help.obsidian.md/Extending+Obsidian/CSS+snippets)** or by **[[#Styles gallery|preset sample styles]]**.
 
@@ -8,7 +8,7 @@ Math Booster defines several [[#Math Booster's custom classes|custom CSS classes
 Otherwise, the selected preset style will be applied. You need to reopen the note to see the style change.
 When `Don't override the app's font setting when using sample styles` is turned on, the preset style will not change the default font family defined in the app's `Settings > Appearance > Font > Text font`.
 
-> [!note]
+> [!remark|*]
 > "Custom" is highly recommended, since it will give you the most control. 
 > 
 > The preset styles are only for a trial purpose, and they might not work well with some non-default themes. You can view the CSS snippets for all the preset styles in the documentation or at the [GitHub repository](https://github.com/RyotaUshio/obsidian-math-booster/tree/master/styles), which you can use as a starting point.

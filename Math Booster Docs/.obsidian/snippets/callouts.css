@@ -1,4 +1,4 @@
-.callout:not(.theorem-callout) .callout-content p {
+.callout .callout-content p {
     margin-block-start: 0.7rem;
-    margin-block-end: 0.3rem;
+    margin-block-end: 0.7rem;
 }

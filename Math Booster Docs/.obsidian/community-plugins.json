@@ -40,7 +40,6 @@
   "obsidian-toggl-integration",
   "quick-explorer",
   "obsidian-relative-line-numbers",
-  "dataview",
   "japanese-word-splitter",
   "spotify",
   "genius",
@@ -55,6 +54,6 @@
   "table-editor-obsidian",
   "obsidian-columns",
   "mathlinks",
-  "math-booster",
-  "obsidian-style-settings"
+  "obsidian-style-settings",
+  "math-booster"
 ]

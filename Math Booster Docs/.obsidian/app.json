@@ -22,5 +22,6 @@
   "vimMode": false,
   "autoPairMarkdown": false,
   "autoPairBrackets": false,
-  "mobilePullAction": "darlal-switcher-plus:switcher-plus:open-commands"
+  "mobilePullAction": "darlal-switcher-plus:switcher-plus:open-commands",
+  "defaultViewMode": "preview"
 }

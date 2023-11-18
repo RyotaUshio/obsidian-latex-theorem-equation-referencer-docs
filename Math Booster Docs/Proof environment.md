@@ -3,7 +3,7 @@
 > [!warning]
 > This is an experimental feature.
 
-> [!info]
+> [!remark|*]
 > See also [this post](https://forum.obsidian.md/t/new-plugin-math-booster-take-mathematical-notes-just-as-in-latex/65089/3?u=ush) on the forum for more information.
 
 Math Booster supports $\LaTeX$-like proof environments.

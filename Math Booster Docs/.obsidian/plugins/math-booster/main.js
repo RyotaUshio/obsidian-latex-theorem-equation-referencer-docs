@@ -7502,14 +7502,14 @@ var require_lib = __commonJS({
       else
         return window.DataviewAPI;
     };
-    var isPluginEnabled3 = (app2) => app2.plugins.enabledPlugins.has("dataview");
+    var isPluginEnabled2 = (app2) => app2.plugins.enabledPlugins.has("dataview");
     exports.DATE_SHORTHANDS = DATE_SHORTHANDS;
     exports.DURATION_TYPES = DURATION_TYPES;
     exports.EXPRESSION = EXPRESSION;
     exports.KEYWORDS = KEYWORDS;
     exports.QUERY_LANGUAGE = QUERY_LANGUAGE;
     exports.getAPI = getAPI2;
-    exports.isPluginEnabled = isPluginEnabled3;
+    exports.isPluginEnabled = isPluginEnabled2;
     exports.parseField = parseField;
   }
 });
@@ -7998,12 +7998,14 @@ var THEOREM_REF_FORMATS = [
   "[title] if title exists, [type] [number] otherwise"
 ];
 var LEAF_OPTIONS = [
+  "Current tab",
   "Split right",
   "Split down",
   "New tab",
   "New window"
 ];
 var LEAF_OPTION_TO_ARGS = {
+  "Current tab": [false],
   "Split right": ["split", "vertical"],
   "Split down": ["split", "horizontal"],
   "New tab": ["tab"],
@@ -8022,8 +8024,7 @@ var UNION_TYPE_MATH_CONTEXT_SETTING_KEYS = {
 };
 var UNION_TYPE_EXTRA_SETTING_KEYS = {
   "searchMethod": SEARCH_METHODS,
-  "suggestLeafOption": LEAF_OPTIONS,
-  "backlinkLeafOption": LEAF_OPTIONS
+  "suggestLeafOption": LEAF_OPTIONS
 };
 var DEFAULT_SETTINGS = {
   profile: Object.keys(DEFAULT_PROFILES)[0],
@@ -8089,8 +8090,7 @@ var DEFAULT_EXTRA_SETTINGS = {
   modifierToJump: "Mod",
   modifierToNoteLink: "Shift",
   showModifierInstruction: true,
-  suggestLeafOption: "Split right",
-  backlinkLeafOption: "Split right",
+  suggestLeafOption: "Current tab",
   // projectInfix: " > ",
   // projectSep: "/",
   importerNumThreads: 2,
@@ -8113,7 +8113,6 @@ var import_obsidian14 = require("obsidian");
 var import_obsidian8 = require("obsidian");
 
 // src/utils/obsidian.ts
-var import_view = require("@codemirror/view");
 var import_obsidian5 = require("obsidian");
 var import_obsidian6 = require("obsidian");
 
@@ -8271,22 +8270,25 @@ function getMarkdownSourceViewEl(view) {
     return secondCandidate;
   }
 }
-async function openFileAndSelectPosition(file, position, ...leafArgs) {
-  const leaf = this.app.workspace.getLeaf(...leafArgs);
+async function openFileAndSelectPosition(app2, file, position, ...leafArgs) {
+  const leaf = app2.workspace.getLeaf(...leafArgs);
   await leaf.openFile(file);
   if (leaf.view instanceof import_obsidian5.MarkdownView) {
-    leaf.view.editor.setSelection(
-      locToEditorPosition(position.start),
-      locToEditorPosition(position.end)
-    );
-    const cm = leaf.view.editor.cm;
-    if (cm) {
-      const lineCenter = Math.floor((position.start.line + position.end.line) / 2);
-      const posCenter = cm.state.doc.line(lineCenter).from;
-      cm.dispatch({
-        effects: import_view.EditorView.scrollIntoView(posCenter, { y: "center" })
+    const editor = leaf.view.editor;
+    const from = locToEditorPosition(position.start);
+    const to = locToEditorPosition(position.end);
+    editor.setSelection(from, to);
+    editor.scrollIntoView({ from, to }, true);
+    setTimeout(() => {
+      const previewMode = leaf.view.previewMode;
+      const ctx = previewMode.renderer;
+      const div = Array.from(previewMode.containerEl.querySelector(".markdown-preview-section").querySelectorAll(":scope > div")).find((div2) => {
+        var _a;
+        return ((_a = ctx.getSectionInfo(div2)) == null ? void 0 : _a.lineStart) === position.start.line;
       });
-    }
+      ctx.highlightEl(div);
+      div == null ? void 0 : div.scrollIntoView({ block: "center" });
+    }, 50);
   }
 }
 function isPluginOlderThan(plugin, version) {
@@ -8783,40 +8785,6 @@ var ExtraSettingsHelper = class extends SettingsHelper {
     this.addToggleSetting("setLabelInModal", "Show LaTeX/Pandoc label input form in theorem callout insert/edit modal");
     this.addToggleSetting("enableMathPreviewInCalloutAndQuote", "Render equations inside callouts & add multi-line equation support to blockquotes", void 0, () => this.plugin.updateEditorExtensions());
     this.addToggleSetting("enableProof", "Enable proof environment", `For example, you can replace a pair of inline codes \`${DEFAULT_SETTINGS.beginProof}\` & \`${DEFAULT_SETTINGS.endProof}\` with "${DEFAULT_PROFILES[DEFAULT_SETTINGS.profile].body.proof.begin}" & "${DEFAULT_PROFILES[DEFAULT_SETTINGS.profile].body.proof.end}". You can style it with CSS snippets. See the documentation for the details.`, () => this.plugin.updateEditorExtensions());
-    this.contentEl.createDiv({
-      text: `Enabling/disabling requires to reloading ${this.plugin.manifest.name} to take effect.`,
-      cls: ["setting-item-description", "math-booster-setting-item-description"]
-    });
-    this.contentEl.createEl("h4", { text: "Theorem & equation suggestion" });
-    this.contentEl.createEl("h5", { text: "From entire vault" });
-    this.addToggleSetting("enableSuggest", "Enable");
-    this.addTextSetting("triggerSuggest", "Trigger");
-    this.contentEl.createEl("h5", { text: "From recent notes" });
-    this.addToggleSetting("enableSuggestRecentNotes", "Enable");
-    this.addTextSetting("triggerSuggestRecentNotes", "Trigger");
-    this.contentEl.createEl("h5", { text: "From active note" });
-    this.addToggleSetting("enableSuggestActiveNote", "Enable");
-    this.addTextSetting("triggerSuggestActiveNote", "Trigger");
-    this.contentEl.createEl("h4", { text: "Theorem suggestion" });
-    this.contentEl.createEl("h5", { text: "From entire vault" });
-    this.addToggleSetting("enableTheoremSuggest", "Enable");
-    this.addTextSetting("triggerTheoremSuggest", "Trigger");
-    this.contentEl.createEl("h5", { text: "From recent notes" });
-    this.addToggleSetting("enableTheoremSuggestRecentNotes", "Enable");
-    this.addTextSetting("triggerTheoremSuggestRecentNotes", "Trigger");
-    this.contentEl.createEl("h5", { text: "From active note" });
-    this.addToggleSetting("enableTheoremSuggestActiveNote", "Enable");
-    this.addTextSetting("triggerTheoremSuggestActiveNote", "Trigger");
-    this.contentEl.createEl("h4", { text: "Equation suggestion" });
-    this.contentEl.createEl("h5", { text: "From entire vault" });
-    this.addToggleSetting("enableEquationSuggest", "Enable");
-    this.addTextSetting("triggerEquationSuggest", "Trigger");
-    this.contentEl.createEl("h5", { text: "From recent notes" });
-    this.addToggleSetting("enableEquationSuggestRecentNotes", "Enable");
-    this.addTextSetting("triggerEquationSuggestRecentNotes", "Trigger");
-    this.contentEl.createEl("h5", { text: "From active note" });
-    this.addToggleSetting("enableEquationSuggestActiveNote", "Enable");
-    this.addTextSetting("triggerEquationSuggestActiveNote", "Trigger");
     this.contentEl.createEl("h4", { text: "General" });
     this.addSliderSetting("suggestNumber", { min: 1, max: 50, step: 1 }, "Number of suggestions", "Specify how many items are suggested at one time. Set it to a smaller value if you have a performance issue when equation suggestions with math rendering on.");
     this.addToggleSetting("renderMathInSuggestion", "Render math in equation suggestions", "Turn this off if you have a performance issue and reducing the number of suggestions doesn't fix it.");
@@ -8830,6 +8798,41 @@ var ExtraSettingsHelper = class extends SettingsHelper {
     list.createEl("li", { text: "Mod is Cmd on MacOS and Ctrl on other OS." });
     list.createEl("li", { text: "Meta is Cmd on MacOS and Win key on Windows." });
     this.addDropdownSetting("suggestLeafOption", LEAF_OPTIONS, "Opening option", "Specify how to open the selected suggestion.");
+    this.contentEl.createEl("h4", { text: "Editor link auto-completion" });
+    this.contentEl.createDiv({
+      text: `It is recommended to turn off unnecessary auto-completions to improve performance.`,
+      cls: ["setting-item-description", "math-booster-setting-item-description"]
+    });
+    this.contentEl.createEl("h5", { text: "Theorem & equation suggestion" });
+    this.contentEl.createEl("h6", { text: "From entire vault" });
+    this.addToggleSetting("enableSuggest", "Enable", void 0, () => this.plugin.updateLinkAutocomplete());
+    this.addTextSetting("triggerSuggest", "Trigger");
+    this.contentEl.createEl("h6", { text: "From recently opened notes" });
+    this.addToggleSetting("enableSuggestRecentNotes", "Enable", void 0, () => this.plugin.updateLinkAutocomplete());
+    this.addTextSetting("triggerSuggestRecentNotes", "Trigger");
+    this.contentEl.createEl("h6", { text: "From active note" });
+    this.addToggleSetting("enableSuggestActiveNote", "Enable", void 0, () => this.plugin.updateLinkAutocomplete());
+    this.addTextSetting("triggerSuggestActiveNote", "Trigger");
+    this.contentEl.createEl("h5", { text: "Theorem suggestion" });
+    this.contentEl.createEl("h6", { text: "From entire vault" });
+    this.addToggleSetting("enableTheoremSuggest", "Enable", void 0, () => this.plugin.updateLinkAutocomplete());
+    this.addTextSetting("triggerTheoremSuggest", "Trigger");
+    this.contentEl.createEl("h6", { text: "From recently opened notes" });
+    this.addToggleSetting("enableTheoremSuggestRecentNotes", "Enable", void 0, () => this.plugin.updateLinkAutocomplete());
+    this.addTextSetting("triggerTheoremSuggestRecentNotes", "Trigger");
+    this.contentEl.createEl("h6", { text: "From active note" });
+    this.addToggleSetting("enableTheoremSuggestActiveNote", "Enable", void 0, () => this.plugin.updateLinkAutocomplete());
+    this.addTextSetting("triggerTheoremSuggestActiveNote", "Trigger");
+    this.contentEl.createEl("h5", { text: "Equation suggestion" });
+    this.contentEl.createEl("h6", { text: "From entire vault" });
+    this.addToggleSetting("enableEquationSuggest", "Enable", void 0, () => this.plugin.updateLinkAutocomplete());
+    this.addTextSetting("triggerEquationSuggest", "Trigger");
+    this.contentEl.createEl("h6", { text: "From recently opened notes" });
+    this.addToggleSetting("enableEquationSuggestRecentNotes", "Enable", void 0, () => this.plugin.updateLinkAutocomplete());
+    this.addTextSetting("triggerEquationSuggestRecentNotes", "Trigger");
+    this.contentEl.createEl("h6", { text: "From active note" });
+    this.addToggleSetting("enableEquationSuggestActiveNote", "Enable", void 0, () => this.plugin.updateLinkAutocomplete());
+    this.addTextSetting("triggerEquationSuggestActiveNote", "Trigger");
     this.contentEl.createEl("h3", { text: "Indexing" });
     this.addSliderSetting("importerNumThreads", { min: 1, max: 10, step: 1 }, "Indexer threads", "The maximum number of thread used for indexing.");
     this.addSliderSetting("importerUtilization", { min: 0.1, max: 1, step: 0.01 }, "Indexer CPU utilization", "The CPU utilization that indexer threads should use.");
@@ -10070,7 +10073,7 @@ var CleverRefProvider = class extends Provider {
 // src/theorem_callouts.ts
 var import_state2 = require("@codemirror/state");
 var import_obsidian16 = require("obsidian");
-var import_view3 = require("@codemirror/view");
+var import_view2 = require("@codemirror/view");
 
 // src/utils/render.ts
 var import_obsidian15 = require("obsidian");
@@ -10157,10 +10160,10 @@ var import_language2 = require("@codemirror/language");
 // src/theorem_callout_metadata_hider.ts
 var import_state = require("@codemirror/state");
 var import_language = require("@codemirror/language");
-var import_view2 = require("@codemirror/view");
+var import_view = require("@codemirror/view");
 var CALLOUT = /HyperMD-callout_HyperMD-quote_HyperMD-quote-([1-9][0-9]*)/;
 var CALLOUT_PRE_TITLE = (level) => new RegExp(`formatting_formatting-quote_formatting-quote-${level}_hmd-callout_quote_quote-${level}`);
-var theoremCalloutMetadataHiderPlulgin = import_view2.ViewPlugin.fromClass(
+var theoremCalloutMetadataHiderPlulgin = import_view.ViewPlugin.fromClass(
   class {
     constructor(view) {
       this.impl(view);
@@ -10191,7 +10194,7 @@ var theoremCalloutMetadataHiderPlulgin = import_view2.ViewPlugin.fromClass(
                 decorationBuilder.add(
                   node.from,
                   node.to,
-                  import_view2.Decoration.mark({
+                  import_view.Decoration.mark({
                     class: "theorem-callout-title",
                     attributes: {
                       "data-auto-number": (settings == null ? void 0 : settings.number) === "auto" ? "true" : "false"
@@ -10209,9 +10212,9 @@ var theoremCalloutMetadataHiderPlulgin = import_view2.ViewPlugin.fromClass(
   },
   {
     decorations: (instance) => instance.decorations,
-    provide: (plugin) => import_view2.EditorView.atomicRanges.of((view) => {
+    provide: (plugin) => import_view.EditorView.atomicRanges.of((view) => {
       var _a, _b;
-      return (_b = (_a = view.plugin(plugin)) == null ? void 0 : _a.atomicRanges) != null ? _b : import_view2.Decoration.none;
+      return (_b = (_a = view.plugin(plugin)) == null ? void 0 : _a.atomicRanges) != null ? _b : import_view.Decoration.none;
     })
   }
 );
@@ -10567,7 +10570,7 @@ var TheoremCalloutRenderer = class _TheoremCalloutRenderer extends import_obsidi
     return info1.theoremMainTitle !== info2.theoremMainTitle;
   }
 };
-var theoremCalloutNumberingViewPlugin = import_view3.ViewPlugin.fromClass(
+var theoremCalloutNumberingViewPlugin = import_view2.ViewPlugin.fromClass(
   class {
     constructor(view) {
       this.view = view;
@@ -10628,7 +10631,7 @@ var MutationObservingChild = class extends import_obsidian16.Component {
     this.observer.disconnect();
   }
 };
-var createTheoremCalloutFirstLineDecorator = (plugin) => import_view3.ViewPlugin.fromClass(
+var createTheoremCalloutFirstLineDecorator = (plugin) => import_view2.ViewPlugin.fromClass(
   class {
     constructor(view) {
       this.decorations = this.buildDecorations(view);
@@ -10656,7 +10659,7 @@ var createTheoremCalloutFirstLineDecorator = (plugin) => import_view3.ViewPlugin
             builder.add(
               node.from,
               node.from,
-              import_view3.Decoration.line({
+              import_view2.Decoration.line({
                 class: "theorem-callout-first-line",
                 attributes: { "data-auto-number": settings.number === "auto" ? "true" : "false" }
               })
@@ -10722,7 +10725,7 @@ function insertDisplayMath(editor) {
 // src/equation_number.ts
 var import_obsidian18 = require("obsidian");
 var import_state3 = require("@codemirror/state");
-var import_view4 = require("@codemirror/view");
+var import_view3 = require("@codemirror/view");
 var createEquationNumberProcessor = (plugin) => async (el, ctx) => {
   const isPdfExport = el.classList.contains("markdown-rendered");
   const sourceFile = plugin.app.vault.getAbstractFileByPath(ctx.sourcePath);
@@ -10819,7 +10822,7 @@ function createEquationNumberPlugin(plugin) {
       }
     });
   }));
-  return import_view4.ViewPlugin.fromClass(class {
+  return import_view3.ViewPlugin.fromClass(class {
     constructor(view) {
       this.impl(view);
     }
@@ -10905,14 +10908,14 @@ function replaceMathTag(displayMathEl, text, tag, settings) {
 // src/math_live_preview_in_callouts.ts
 var import_obsidian20 = require("obsidian");
 var import_state4 = require("@codemirror/state");
-var import_view5 = require("@codemirror/view");
+var import_view4 = require("@codemirror/view");
 var import_language3 = require("@codemirror/language");
 var DISPLAY_MATH_BEGIN = "formatting_formatting-math_formatting-math-begin_keyword_math_math-block";
 var INLINE_MATH_BEGIN = "formatting_formatting-math_formatting-math-begin_keyword_math";
 var MATH_END = "formatting_formatting-math_formatting-math-end_keyword_math_math-";
 var ERROR_MATH = "error_math";
 var BLOCKQUOTE = /HyperMD-quote_HyperMD-quote-([1-9][0-9]*)/;
-var MathPreviewWidget = class extends import_view5.WidgetType {
+var MathPreviewWidget = class extends import_view4.WidgetType {
   /** It is critical to pass a MathInfo object with a PRE-RENDERED MathJax element 
    * for decreasing the number of the expensive renderMath() calls */
   constructor(info) {
@@ -10970,7 +10973,7 @@ var MathInfo = class extends import_state4.RangeValue {
     return new MathPreviewWidget(this);
   }
   toDecoration(which) {
-    return import_view5.Decoration[which]({
+    return import_view4.Decoration[which]({
       widget: this.toWidget(),
       block: this.display,
       side: which == "widget" ? 1 : void 0
@@ -11129,7 +11132,7 @@ var mathPreviewInfoField = import_state4.StateField.define({
     return { mathInfoSet, isInCalloutsOrQuotes, hasOverlappingMath, hasOverlappingDisplayMath, rerendered };
   }
 });
-var inlineMathPreview = import_view5.ViewPlugin.fromClass(
+var inlineMathPreview = import_view4.ViewPlugin.fromClass(
   class {
     constructor(view) {
       this.buildDecorations(view);
@@ -11141,12 +11144,12 @@ var inlineMathPreview = import_view5.ViewPlugin.fromClass(
     }
     buildDecorations(view) {
       if (isSourceMode(view.state)) {
-        this.decorations = import_view5.Decoration.none;
+        this.decorations = import_view4.Decoration.none;
         return;
       }
       const field = view.state.field(mathPreviewInfoField);
       if (!field.isInCalloutsOrQuotes) {
-        this.decorations = import_view5.Decoration.none;
+        this.decorations = import_view4.Decoration.none;
         return;
       }
       const range = view.state.selection.main;
@@ -11173,14 +11176,14 @@ var inlineMathPreview = import_view5.ViewPlugin.fromClass(
 );
 var displayMathPreviewForCallout = import_state4.StateField.define({
   create(state) {
-    return import_view5.Decoration.none;
+    return import_view4.Decoration.none;
   },
   update(value, transaction) {
     const builder = new import_state4.RangeSetBuilder();
     const range = transaction.state.selection.main;
     const field = transaction.state.field(mathPreviewInfoField);
     if (isSourceMode(transaction.state)) {
-      return import_view5.Decoration.none;
+      return import_view4.Decoration.none;
     }
     if (!transaction.docChanged && !overlapStateChanged(transaction.state)) {
       return value;
@@ -11203,10 +11206,10 @@ var displayMathPreviewForCallout = import_state4.StateField.define({
     return builder.finish();
   },
   provide(field) {
-    return import_view5.EditorView.decorations.from(field);
+    return import_view4.EditorView.decorations.from(field);
   }
 });
-var hideDisplayMathPreviewInQuote = import_view5.ViewPlugin.fromClass(
+var hideDisplayMathPreviewInQuote = import_view4.ViewPlugin.fromClass(
   class {
     constructor(view) {
       this.impl(view);
@@ -11264,7 +11267,7 @@ function overlapStateChanged(state) {
   const infoSet = state.field(mathPreviewInfoField).mathInfoSet;
   return rangeSetSome(infoSet, (info) => info.overlapChanged);
 }
-var displayMathPreviewForQuote = import_view5.ViewPlugin.fromClass(
+var displayMathPreviewForQuote = import_view4.ViewPlugin.fromClass(
   class {
     constructor(view) {
       this.impl(view);
@@ -11311,7 +11314,7 @@ var displayMathPreviewForQuote = import_view5.ViewPlugin.fromClass(
 // src/proof.ts
 var import_obsidian21 = require("obsidian");
 var import_state5 = require("@codemirror/state");
-var import_view6 = require("@codemirror/view");
+var import_view5 = require("@codemirror/view");
 var import_language4 = require("@codemirror/language");
 var INLINE_CODE = "inline-code";
 var LINK_BEGIN = "formatting-link_formatting-link-start";
@@ -11422,7 +11425,7 @@ var createProofProcessor = (plugin) => (element, context) => {
     }
   }
 };
-var ProofWidget = class _ProofWidget extends import_view6.WidgetType {
+var ProofWidget = class _ProofWidget extends import_view5.WidgetType {
   constructor(which, pos, profile, sourcePath, plugin) {
     super();
     this.which = which;
@@ -11514,7 +11517,7 @@ function makeField(state, plugin) {
   });
   return field;
 }
-var proofDecorationFactory = (plugin) => import_view6.ViewPlugin.fromClass(
+var proofDecorationFactory = (plugin) => import_view5.ViewPlugin.fromClass(
   class {
     constructor(view) {
       this.impl(view);
@@ -11525,7 +11528,7 @@ var proofDecorationFactory = (plugin) => import_view6.ViewPlugin.fromClass(
     impl(view) {
       const file = view.state.field(import_obsidian21.editorInfoField).file;
       if (!file) {
-        this.decorations = import_view6.Decoration.none;
+        this.decorations = import_view5.Decoration.none;
         return;
       }
       const settings = resolveSettings(void 0, plugin, file);
@@ -11540,7 +11543,7 @@ var proofDecorationFactory = (plugin) => import_view6.ViewPlugin.fromClass(
               builder.add(
                 pos.begin.from,
                 pos.linknodes.linkEnd.to,
-                import_view6.Decoration.replace({
+                import_view5.Decoration.replace({
                   widget: new ProofWidget("begin", pos, profile, file.path, plugin)
                 })
               );
@@ -11549,7 +11552,7 @@ var proofDecorationFactory = (plugin) => import_view6.ViewPlugin.fromClass(
             builder.add(
               pos.begin.from,
               pos.begin.to,
-              import_view6.Decoration.replace({
+              import_view5.Decoration.replace({
                 widget: new ProofWidget("begin", pos, profile, file.path, plugin)
               })
             );
@@ -11559,7 +11562,7 @@ var proofDecorationFactory = (plugin) => import_view6.ViewPlugin.fromClass(
           builder.add(
             pos.end.from,
             pos.end.to,
-            import_view6.Decoration.replace({
+            import_view5.Decoration.replace({
               widget: new ProofWidget("end", pos, profile)
             })
           );
@@ -12524,7 +12527,115 @@ var LinkAutocomplete = class extends import_obsidian27.EditorSuggest {
 };
 
 // src/search/core.ts
+var import_obsidian29 = require("obsidian");
+
+// src/search/modal.ts
+var Dataview = __toESM(require_lib());
 var import_obsidian28 = require("obsidian");
+var MathSearchModal = class extends import_obsidian28.SuggestModal {
+  constructor(plugin) {
+    super(plugin.app);
+    this.plugin = plugin;
+    this.app = plugin.app;
+    this.core = new WholeVaultTheoremEquationSearchCore(this);
+    this.core.setScope();
+    this.setPlaceholder("Type here...");
+    this.queryType = this.plugin.extraSettings.searchModalQueryType;
+    this.range = this.plugin.extraSettings.searchModalRange;
+    this.topEl = this.modalEl.createDiv({ cls: "math-booster-modal-top" });
+    this.modalEl.insertBefore(this.topEl, this.modalEl.firstChild);
+    this.inputEl.addClass("math-booster-search-input");
+    this.limit = this.plugin.extraSettings.suggestNumber;
+    new import_obsidian28.Setting(this.topEl).setName("Query type").addDropdown((dropdown) => {
+      dropdown.addOption("both", "Theorems and equations").addOption("theorem", "Theorems").addOption("equation", "Equations");
+      dropdown.setValue(this.plugin.extraSettings.searchModalQueryType);
+      dropdown.onChange((value) => {
+        this.queryType = value;
+        this.resetCore();
+        this.onInput();
+        this.plugin.extraSettings.searchModalQueryType = value;
+        this.plugin.saveSettings();
+      });
+    });
+    new import_obsidian28.Setting(this.topEl).setName("Search range").addDropdown((dropdown) => {
+      dropdown.addOption("vault", "Vault").addOption("recent", "Recent notes").addOption("active", "Active note").addOption("dataview", "Dataview query");
+      dropdown.setValue(this.plugin.extraSettings.searchModalRange);
+      dropdown.onChange((value) => {
+        this.range = value;
+        this.resetCore();
+        this.onInput();
+        this.plugin.extraSettings.searchModalRange = value;
+        this.plugin.saveSettings();
+      });
+    });
+    this.dvQueryField = new import_obsidian28.Setting(this.topEl).setName("Dataview query").setDesc("Only LIST query is supported.").then((setting) => {
+      setting.controlEl.style.width = "60%";
+    }).addTextArea((text) => {
+      text.inputEl.addClass("math-booster-dv-query");
+      text.inputEl.style.width = "100%";
+      text.setValue(this.plugin.extraSettings.searchModalDvQuery).setPlaceholder("LIST ...").onChange((dvQuery) => {
+        if (this.core instanceof DataviewQuerySearchCore) {
+          this.core.dvQuery = dvQuery;
+          this.onInput();
+          this.plugin.extraSettings.searchModalDvQuery = dvQuery;
+          this.plugin.saveSettings();
+        }
+      });
+    });
+    this.modalEl.insertBefore(this.inputEl, this.modalEl.firstChild);
+    this.resetCore();
+  }
+  resetCore() {
+    if (this.range === "dataview") {
+      const dv = Dataview.getAPI(this.app);
+      if (!dv) {
+        this.dvQueryField.setDisabled(true);
+        this.dvQueryField.setDesc("Retry after enabling Dataview.").then((setting) => setting.descEl.style.color = "#ea5555");
+        this.dvQueryField.settingEl.show();
+        return;
+      }
+      this.core = new DataviewQuerySearchCore(this, this.queryType, dv, this.dvQueryField.components[0].getValue());
+      this.dvQueryField.settingEl.show();
+      return;
+    }
+    this.dvQueryField.settingEl.hide();
+    if (this.range === "vault") {
+      if (this.queryType === "both")
+        this.core = new WholeVaultTheoremEquationSearchCore(this);
+      else if (this.queryType === "theorem")
+        this.core = new WholeVaultTheoremSearchCore(this);
+      else if (this.queryType === "equation")
+        this.core = new WholeVaultEquationSearchCore(this);
+    } else if (this.range === "recent")
+      this.core = new RecentNotesSearchCore(this, this.queryType);
+    else if (this.range === "active")
+      this.core = new ActiveNoteSearchCore(this, this.queryType);
+  }
+  getContext() {
+    const view = this.app.workspace.getActiveViewOfType(import_obsidian28.MarkdownView);
+    if (!(view == null ? void 0 : view.file))
+      return null;
+    const start = view.editor.getCursor("from");
+    const end = view.editor.getCursor("to");
+    return { file: view.file, editor: view.editor, start, end };
+  }
+  getSelectedItem() {
+    if (!this.chooser.values)
+      throw Error("Math Booster: chooser is not ready.");
+    return this.chooser.values[this.chooser.selectedItem];
+  }
+  getSuggestions(query) {
+    return this.core.getSuggestions(query);
+  }
+  renderSuggestion(value, el) {
+    this.core.renderSuggestion(value, el);
+  }
+  onChooseSuggestion(item, evt) {
+    this.core.selectSuggestion(item, evt);
+  }
+};
+
+// src/search/core.ts
 var MathSearchCore = class {
   constructor(parent) {
     this.parent = parent;
@@ -12542,14 +12653,18 @@ var MathSearchCore = class {
       }
       const item = this.parent.getSelectedItem();
       const file = this.app.vault.getAbstractFileByPath(item.$file);
-      if (!(file instanceof import_obsidian28.TFile))
+      if (!(file instanceof import_obsidian29.TFile))
         return;
-      openFileAndSelectPosition(file, item.$pos, ...LEAF_OPTION_TO_ARGS[this.plugin.extraSettings.suggestLeafOption]);
+      openFileAndSelectPosition(this.app, file, item.$pos, ...LEAF_OPTION_TO_ARGS[this.plugin.extraSettings.suggestLeafOption]);
+      if (this.parent instanceof MathSearchModal)
+        this.parent.close();
       return false;
     });
     this.scope.register([this.plugin.extraSettings.modifierToNoteLink], "Enter", () => {
       const item = this.parent.getSelectedItem();
       this.selectSuggestionImpl(item, true);
+      if (this.parent instanceof MathSearchModal)
+        this.parent.close();
       return false;
     });
     if (this.plugin.extraSettings.showModifierInstruction) {
@@ -12565,14 +12680,14 @@ var MathSearchCore = class {
     const ids = await this.getUnsortedSuggestions();
     const results = this.gradeSuggestions(ids, query);
     this.postProcessResults(results);
-    (0, import_obsidian28.sortSearchResults)(results);
+    (0, import_obsidian29.sortSearchResults)(results);
     return results.map((result) => result.block);
   }
   postProcessResults(results) {
   }
   gradeSuggestions(ids, query) {
     var _a;
-    const callback = (this.plugin.extraSettings.searchMethod == "Fuzzy" ? import_obsidian28.prepareFuzzySearch : import_obsidian28.prepareSimpleSearch)(query);
+    const callback = (this.plugin.extraSettings.searchMethod == "Fuzzy" ? import_obsidian29.prepareFuzzySearch : import_obsidian29.prepareSimpleSearch)(query);
     const results = [];
     for (const id of ids) {
       const block = this.index.load(id);
@@ -12581,7 +12696,7 @@ var MathSearchCore = class {
         text += ` ${block.$settings.type}`;
         if (this.plugin.extraSettings.searchLabel) {
           const file = this.app.vault.getAbstractFileByPath(block.$file);
-          if (file instanceof import_obsidian28.TFile) {
+          if (file instanceof import_obsidian29.TFile) {
             const resolvedSettings = resolveSettings(block.$settings, this.plugin, file);
             text += ` ${(_a = formatLabel(resolvedSettings)) != null ? _a : ""}`;
           }
@@ -12610,7 +12725,7 @@ var MathSearchCore = class {
     );
     if (block.$type === "equation") {
       if (this.plugin.extraSettings.renderMathInSuggestion) {
-        const mjxContainerEl = (0, import_obsidian28.renderMath)(block.$mathText, true);
+        const mjxContainerEl = (0, import_obsidian29.renderMath)(block.$mathText, true);
         baseEl.insertBefore(mjxContainerEl, smallEl);
       } else {
         const mathTextEl = createDiv({ text: block.$mathText });
@@ -12620,7 +12735,7 @@ var MathSearchCore = class {
   }
   selectSuggestion(item, evt) {
     this.selectSuggestionImpl(item, false);
-    (0, import_obsidian28.finishRenderMath)();
+    (0, import_obsidian29.finishRenderMath)();
   }
   async selectSuggestionImpl(block, insertNoteLink) {
     const context = this.parent.getContext();
@@ -12628,7 +12743,7 @@ var MathSearchCore = class {
       return;
     const fileContainingBlock = this.app.vault.getAbstractFileByPath(block.$file);
     const cache = this.app.metadataCache.getCache(block.$file);
-    if (!(fileContainingBlock instanceof import_obsidian28.TFile) || !cache)
+    if (!(fileContainingBlock instanceof import_obsidian29.TFile) || !cache)
       return;
     const { editor, start, end, file } = context;
     const settings = resolveSettings(void 0, this.plugin, file);
@@ -12657,7 +12772,7 @@ var MathSearchCore = class {
       success = true;
     }
     if (!success) {
-      new import_obsidian28.Notice(`${this.plugin.manifest.name}: Failed to read cache. Retry again later.`, 5e3);
+      new import_obsidian29.Notice(`${this.plugin.manifest.name}: Failed to read cache. Retry again later.`, 5e3);
     }
   }
 };
@@ -12738,110 +12853,6 @@ var DataviewQuerySearchCore = class extends PartialSearchCore {
       return links.map((link) => link.path);
     }
     return [];
-  }
-};
-
-// src/search/modal.ts
-var Dataview = __toESM(require_lib());
-var import_obsidian30 = require("obsidian");
-var MathSearchModal = class extends import_obsidian30.SuggestModal {
-  constructor(plugin) {
-    super(plugin.app);
-    this.plugin = plugin;
-    this.app = plugin.app;
-    window["modal"] = this;
-    this.core = new WholeVaultTheoremEquationSearchCore(this);
-    this.core.setScope();
-    this.setPlaceholder("Type here...");
-    this.queryType = this.plugin.extraSettings.searchModalQueryType;
-    this.range = this.plugin.extraSettings.searchModalRange;
-    this.topEl = this.modalEl.createDiv({ cls: "math-booster-modal-top" });
-    this.modalEl.insertBefore(this.topEl, this.modalEl.firstChild);
-    this.inputEl.addClass("math-booster-search-input");
-    this.limit = this.plugin.extraSettings.suggestNumber;
-    new import_obsidian30.Setting(this.topEl).setName("Query type").addDropdown((dropdown) => {
-      dropdown.addOption("both", "Theorems and equations").addOption("theorem", "Theorems").addOption("equation", "Equations");
-      dropdown.setValue(this.plugin.extraSettings.searchModalQueryType);
-      dropdown.onChange((value) => {
-        this.queryType = value;
-        this.resetCore();
-        this.onInput();
-        this.plugin.extraSettings.searchModalQueryType = value;
-        this.plugin.saveSettings();
-      });
-    });
-    new import_obsidian30.Setting(this.topEl).setName("Search range").addDropdown((dropdown) => {
-      dropdown.addOption("vault", "Vault").addOption("recent", "Recent notes").addOption("active", "Active note");
-      if (Dataview.isPluginEnabled(this.app))
-        dropdown.addOption("dataview", "Dataview query");
-      dropdown.setValue(this.plugin.extraSettings.searchModalRange);
-      dropdown.onChange((value) => {
-        this.range = value;
-        this.resetCore();
-        this.onInput();
-        this.plugin.extraSettings.searchModalRange = value;
-        this.plugin.saveSettings();
-      });
-    });
-    this.dvQueryField = new import_obsidian30.Setting(this.topEl).setName("Dataview query").setDesc("Only LIST query is supported.").then((setting) => {
-      setting.controlEl.style.width = "60%";
-    }).addTextArea((text) => {
-      text.inputEl.addClass("math-booster-dv-query");
-      text.inputEl.style.width = "100%";
-      text.setValue(this.plugin.extraSettings.searchModalDvQuery).setPlaceholder("LIST ...").onChange((dvQuery) => {
-        if (this.core instanceof DataviewQuerySearchCore) {
-          this.core.dvQuery = dvQuery;
-          this.onInput();
-          this.plugin.extraSettings.searchModalDvQuery = dvQuery;
-          this.plugin.saveSettings();
-        }
-      });
-    });
-    this.resetCore();
-  }
-  resetCore() {
-    if (this.range === "dataview") {
-      const dv = Dataview.getAPI(this.app);
-      if (!dv) {
-        new import_obsidian30.Notice("Failed to access Dataview API.");
-        return;
-      }
-      this.core = new DataviewQuerySearchCore(this, this.queryType, dv, this.dvQueryField.components[0].getValue());
-      this.dvQueryField.settingEl.show();
-      return;
-    }
-    this.dvQueryField.settingEl.hide();
-    if (this.range === "vault") {
-      if (this.queryType === "both")
-        this.core = new WholeVaultTheoremEquationSearchCore(this);
-      else if (this.queryType === "theorem")
-        this.core = new WholeVaultTheoremSearchCore(this);
-      else if (this.queryType === "equation")
-        this.core = new WholeVaultEquationSearchCore(this);
-    } else if (this.range === "recent")
-      this.core = new RecentNotesSearchCore(this, this.queryType);
-    else if (this.range === "active")
-      this.core = new ActiveNoteSearchCore(this, this.queryType);
-  }
-  getContext() {
-    const view = this.app.workspace.getActiveViewOfType(import_obsidian30.MarkdownView);
-    if (!(view == null ? void 0 : view.file))
-      return null;
-    const start = view.editor.getCursor("from");
-    const end = view.editor.getCursor("to");
-    return { file: view.file, editor: view.editor, start, end };
-  }
-  getSelectedItem() {
-    return this.chooser.values[this.chooser.selectedItem];
-  }
-  getSuggestions(query) {
-    return this.core.getSuggestions(query);
-  }
-  renderSuggestion(value, el) {
-    this.core.renderSuggestion(value, el);
-  }
-  onChooseSuggestion(item, evt) {
-    this.core.selectSuggestion(item, evt);
   }
 };
 
@@ -12936,7 +12947,7 @@ var MathBooster3 = class extends import_obsidian31.Plugin {
     this.editorExtensions = [];
     this.registerEditorExtension(this.editorExtensions);
     this.updateEditorExtensions();
-    this.registerLinkAutocomplete();
+    this.updateLinkAutocomplete();
     this.registerMarkdownPostProcessor(createTheoremCalloutPostProcessor(this));
     this.registerMarkdownPostProcessor(createEquationNumberProcessor(this));
     this.registerMarkdownPostProcessor(createProofProcessor(this));
@@ -13012,7 +13023,12 @@ var MathBooster3 = class extends import_obsidian31.Plugin {
       // dumpedProjects: this.projectManager.dump(),
     });
   }
-  registerLinkAutocomplete() {
+  updateLinkAutocomplete() {
+    const suggestManager = this.app.workspace.editorSuggest;
+    for (const suggest of suggestManager.suggests) {
+      if (suggest instanceof LinkAutocomplete)
+        suggestManager.removeSuggest(suggest);
+    }
     if (this.extraSettings.enableSuggest) {
       this.registerEditorSuggest(new LinkAutocomplete(
         this,

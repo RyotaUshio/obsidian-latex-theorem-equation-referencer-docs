@@ -1,6 +1,6 @@
 # Theorem callouts
 
-Math Booster offers **Theorem Callouts**, a special version of Obsidian's built-in [callouts](https://help.obsidian.md/Editing+and+formatting/Callouts). They are designed for creating theorem environments (theorem, definition, lemma, ...) in Obsidian as $\LaTeX$-like as possible..
+Math Booster offers **Theorem Callouts**, a special version of Obsidian's built-in [callouts](https://help.obsidian.md/Editing+and+formatting/Callouts). They are designed for creating theorem environments (theorem, definition, lemma, ...) in Obsidian as $\LaTeX$-like as possible.
 
 ## Basics
 
@@ -20,6 +20,8 @@ It will be rendered as below. As you can see, theorem callouts are **automatical
 
 > [!theorem] Title
 > 
+
+^f58c13
 
 > [!corollary]
 > 
@@ -43,6 +45,8 @@ Alternatively, you can use a shorer alias `thm` instead of `theorem`. It will be
 > [!thm] Title
 > 
 
+^c61e2d
+
 > [!cor]
 
 Here's the complete list of available envionments and aliases.
@@ -65,8 +69,6 @@ Here's the complete list of available envionments and aliases.
 
 [^1]: `> [!example]` conflicts with [Obsidian's built-in callout type](https://help.obsidian.md/Editing+and+formatting/Callouts#Supported%20types). There is a setting called `Don't treat "> [!example]" as a theorem callout`, and if it's turned on, an "example" theorem callout can be inserted only with the alias syntax `> [!exm]`.
 
-
-
 > [!NOTE]
 > The aliases are based on [Bookdown](https://bookdown.org/yihui/rmarkdown/bookdown-markdown.html#theorems), but some of the environments are not supported by it.
 
@@ -83,7 +85,7 @@ Similarly to the $\LaTeX$ syntax (e.g. `\begin{theorem*}`), the following will c
 > 
 
 
-### Manuallly numbered theorem callouts
+### Manually numbered theorem callouts
 
 It is also possible to explicitly specify the theorem number by yourself. It's useful, for example, when making a side note about a textbook or a paper.
 
@@ -149,6 +151,8 @@ When set, this theorem is marked as the "main" one of the note containing it. Th
 ## Styling theorem callouts
 
 Although theorem callouts are styled by the preset style by default, you have the full control over their styling through [CSS snippets](https://help.obsidian.md/Extending+Obsidian/CSS+snippets).
+
+See [[Styling|here]] for more details.
 
 > [!note]
 > I strongly recommend using your custom styling instead of the presets because the presets are only tested for the default theme and might not work well with other community themes.

@@ -8,9 +8,8 @@ See also:
 - [[Theorem callouts#`main`]]
 - [[Equations#`display`]]
 
-> [!Note]
+> [!remark]
 >  This feature only works for wikilinks (`[[]]`), and markdown links (`[]()`) are not supported. Even if you are turning off `Use [[Wikilinks]]` in the app settings, you can still insert wikilinks using this plugin's [[Search modal|auto-completion]] feature.
 
-> [!info]
+> [!rmk] MathLinks API
 > This functionality is implemented using the [MathLinks](https://github.com/zhaoshenzhai/obsidian-mathlinks) API. I wrote a sample plugin to demonstrate its usage; it can be found [here](https://github.com/RyotaUshio/obsidian-mathlinks-api-sample-plugin).
-
