@@ -16,7 +16,7 @@ In version 2, the backlink acquisition part was implemented by Math Booster itse
 
 ### [MathLinks](https://github.com/zhaoshenzhai/obsidian-mathlinks) by [Zhaoshen Zhai](tps://github.com/zhaoshenzhai)
 
-This plugin's `cleveref` support (i.e. displaying links with theorem titles or equation numbers) is powered by this plugin and its API.
+This plugin's `cleveref` support (i.e. displaying links with theorem titles or equation numbers) is powered by MathLinks and its API.
 
 ### [Latex Suite](https://github.com/artisticat1/obsidian-latex-suite/tree/main/src) by [artisticat](1https://github.com/artisticat1)
 
