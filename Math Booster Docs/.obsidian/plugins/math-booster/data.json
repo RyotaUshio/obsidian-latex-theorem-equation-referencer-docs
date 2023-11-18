@@ -28,7 +28,7 @@
       "eqRefPrefix": "",
       "eqRefSuffix": "",
       "labelPrefix": "",
-      "lineByLine": true,
+      "lineByLine": false,
       "theoremCalloutStyle": "Framed",
       "theoremCalloutFontInherit": false,
       "beginProof": "\\begin{proof}",

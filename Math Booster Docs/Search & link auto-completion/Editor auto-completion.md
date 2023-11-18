@@ -2,7 +2,7 @@
 
 Math Booster lets you insert links to theorems or equations with ease.
 
-In the editor, type `\ref` (by default; you can change it as you like in the plugin settings). Then, live suggestions for all theorem callouts & equation blocks in the entire vault show up.
+In the editor, type `\ref` (by default). Then, live suggestions for all theorem callouts & equation blocks in the entire vault show up.
 
 - `Enter`: insert a link to the selected item.
 - `Shift`+`Enter`: insert a link to the note containing the selected item.
@@ -14,6 +14,9 @@ Use `\tref` or `\eqref` (by default) instead of `\ref` to suggest only theorems 
 
 - `\rer`/`\trer`/`\eqrer` (by default): search only within recently opened notes
 - `\rea`/`\trea`/`\eqrea` (by default): search only within active note
+
+> [!remark]
+> You can change the trigger strings (e.g. `\ref`) to whatever you like in the plugin settings.
 
 > [!remark]
 > There are $3 \times 3 = 9$ variants of link auto-completion. It is recommended to turn off unnecessary auto-completions in the plugin setting to improve performance.

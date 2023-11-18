@@ -234,14 +234,12 @@ Make sure you make a backup before this command and undo the tag insertion after
 
 You can choose whether multi-line equations in an `align` environment are numbered _collectively as a group_:
 
-![Collectively](https://ryotaushio.github.io/obsidian-math-booster/fig/equation_number_align_0.png)
+![[Equations-20231119011206241.webp]]
 
 or _individually_.
 
-![Individually](https://ryotaushio.github.io/obsidian-math-booster/fig/equation_number_align_1.png)
+![[Equations-20231119011124511.webp]]
 
 Go to the `Number line by line in align` section in the plugin preferences to change the current setting.
 
 When `Number line by line in align` is turned on, you can exclude a line from numbering by inserting `\nonumber`, just like in $\LaTeX$.
-
-![Collectively](https://ryotaushio.github.io/obsidian-math-booster/fig/equation_number_align_2.png)
