@@ -56,6 +56,11 @@ This documentation is generated from an Obsidian vault located under the `Math B
 > [!remark] Webpage HTML Export
 > This documentation website is generated from the `Math Booster Docs` vault using the awesome [Webpage HTML Export](https://github.com/KosmosisDire/obsidian-webpage-export) plugin.
 
+
+## Credits
+
+Math Booster has been inspired a lot by the great Obsidian community; see [[Credits]].
+
 ## Say thank you
 
 If you find this plugin useful, please consider supporting my work by buying me a coffee!
