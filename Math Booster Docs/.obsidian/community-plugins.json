@@ -27,7 +27,6 @@
   "obsidian-latex",
   "float-search",
   "obsidian-banners",
-  "obsidian-style-settings",
   "obsidian-minimal-settings",
   "image-converter",
   "zotlit",
@@ -56,5 +55,6 @@
   "table-editor-obsidian",
   "obsidian-columns",
   "mathlinks",
-  "math-booster"
+  "math-booster",
+  "obsidian-style-settings"
 ]

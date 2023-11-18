@@ -41,7 +41,8 @@
     "source",
     "comments",
     "theorem-framed",
-    "callouts"
+    "callouts",
+    "heading"
   ],
   "cssTheme": "Minimal",
   "baseFontSize": 16,
