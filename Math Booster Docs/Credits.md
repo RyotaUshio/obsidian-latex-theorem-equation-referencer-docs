@@ -26,7 +26,7 @@ The simple & beautiful indicator at the right of the dependency alert modal was 
 
 ### [MathWiki](https://github.com/zhaoshenzhai/MathWiki) by [Zhaoshen Zhai](tps://github.com/zhaoshenzhai)
 
-This aesthetic preset style [[Styling#MathWiki style|"MathWiki"]] was taken from here.
+The aesthetic preset style [[Styling#MathWiki style|"MathWiki"]] was taken from here.
 
 ## And of course...
 
