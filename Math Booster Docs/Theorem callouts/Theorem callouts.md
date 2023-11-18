@@ -56,11 +56,11 @@ Here's the complete list of available envionments and aliases.
 | axiom            | axm   |
 | definition       | def   |
 | lemma            | lem   |
-| proposition      | prop  |
+| proposition      | prp  |
 | theorem          | thm   |
 | corollary        | cor   |
 | claim            | clm   |
-| assumption       | ass   |
+| assumption       | asm   |
 | example[^1]          | exm   |
 | exercise         | exr   |
 | conjecture       | cnj   |
