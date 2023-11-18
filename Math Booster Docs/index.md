@@ -12,7 +12,7 @@
 - [[Rendering equations inside callouts]]
 - [[Multi-line equation support inside blockquotes]]
 - [[Clever referencing]]
-- [[Search modal]]
+- [[Editor auto-completion]] & [[Search modal]]
 - [[Proof environment|Proof environment (experimental)]]
 
 ## Installation
