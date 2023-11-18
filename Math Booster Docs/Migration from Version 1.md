@@ -10,7 +10,7 @@ To fully enjoy version 2, run the command `Migrate from version 1` to convert th
 ## What's new in version 2
 
 - [[Theorem callouts|New format for theorem callouts]]
-- New indexing mechanism: 
+- New indexing mechanism:
 	- no longer blocks UI
 	- no longer hard-codes theorem indices in notes directly
 - [[Editor auto-completion]] improvements: filter theorems & equations (entire vault/recent notes/active note/dataview queries)

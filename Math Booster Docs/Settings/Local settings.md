@@ -1,6 +1,6 @@
 # Local settings
 
-Many of them can be applied specific to a certain folder or file, and they are called **local settings**. 
+Many of Math Booster's settings can be applied specifically to a certain folder or file, and they are called **local settings**. 
 
 In the plugin setting tab, you can set up the local settings for the vault root (which we usually call _global_).
 They apply all the files in the vault unless overwritten by another local settings for a lower-level folder/file.
