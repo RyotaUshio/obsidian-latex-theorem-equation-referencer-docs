@@ -2,7 +2,7 @@
 
 Automatically infer a prefix from the note title or properties. If the inference source (title or property) contains whitespaces, the substring before the first whitespace will be parsed for generating a prefix.
 
-Here's what theorems and equation in [[A. Sample note]] look like:
+See [[A. Sample note|here]] for an example note.
 
 ![[A. Sample note#Theorem callouts]]
 

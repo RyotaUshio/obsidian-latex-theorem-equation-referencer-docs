@@ -10,6 +10,10 @@ To fully enjoy version 2, run the command `Migrate from version 1` to convert th
 ## What's new in version 2
 
 - [[Theorem callouts|New format for theorem callouts]]
+	- cleaner
+	- more intuitive
+	- more keyboard-friendly
+	- less plugin-dependent
 - New indexing mechanism:
 	- no longer blocks UI
 	- no longer hard-codes theorem indices in notes directly
