@@ -1,6 +1,6 @@
 # Equations
 
-With Math Booster, you can get your equations get automatically numbered and reference them by their equation numbers,[^1] just as in $\LaTeX$.
+With Math Booster, you can get your equations automatically numbered and reference them by their equation numbers,[^1] just as in $\LaTeX$.
 
 [^1]: It was one of Obsidian's [long-standing](https://forum.obsidian.md/t/automatic-equation-numbering-latex-math/1325) problems.
 
@@ -222,13 +222,11 @@ But the good news is that [Hover Editor](https://github.com/nothingislost/obsidi
 
 ### PDF export
 
-Currently, dynamic equation numbers are not rendered in exported PDFs.
-As a quick fix, you can run the command `Convert equation numbers in the current note to static \tag{}` to explicitly insert the equation numbers as static LaTeX tags (`\tag{...}`) to avoid this issue.
+In version 2, equation numbers are expected to be successfully printed in PDF exports. Being a new feature, however, there might be some corner cases where it doesn't work perfectly. 
 
-Make sure you make a backup before this command and undo the tag insertion after exporting finishes.
+If equation number printing is not successful, Math Booster will show you a notification. In that case, you can run the command `Convert equation numbers in the current note to static \tag{}` to explicitly insert the equation numbers as static LaTeX tags (`\tag{...}`) as a quick fix.
 
-> [!info]
-> This issue is tracked [here](https://github.com/RyotaUshio/obsidian-math-booster/issues/170). Let me know if you have any idea to fix this issue in a cleaner way!
+Make sure you make a backup before running this command and undo the tag insertion after exporting finishes so that your equations can be dynamically numbered again.
 
 ## The `align` Environment
 

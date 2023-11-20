@@ -45,17 +45,16 @@ Additionally, [Noto Sans JP](https://fonts.google.com/noto/specimen/Noto+Sans+JP
 
 This documentation is generated from an Obsidian vault located under the `Math Booster Docs` folder of [this GitHub repository](https://github.com/RyotaUshio/math-booster-docs). To contribute:
 
-1. [Fork](https://docs.github.com/ja/get-started/quickstart/fork-a-repo) the repository and clone the fork.
+1. [Fork](https://docs.github.com/en/get-started/quickstart/fork-a-repo) the repository and clone the fork.
    ```
     git clone https://github.com/<YOUR NAME>/math-booster-docs.git
     ```
 2. Open the `Math Booster Docs` folder under the cloned repository as an Obsidian vault ([Obsidian Help](https://help.obsidian.md/Getting+started/Create+a+vault#Open+existing+folder)).
 3. Make changes in Obsidian so that links are properly updated.
-4. Commit & push your changes to the fork and [make a pull request](https://docs.github.com/ja/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request) to the original repository.
+4. Commit & push your changes to the fork and [make a pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request) to the original repository.
 
 > [!remark] Webpage HTML Export
-> This documentation website is generated from the `Math Booster Docs` vault using the awesome [Webpage HTML Export](https://github.com/KosmosisDire/obsidian-webpage-export) plugin.
-
+> This documentation website is generated from the [Math Booster Docs](https://github.com/RyotaUshio/math-booster-docs/tree/main/Math%20Booster%20Docs) vault using the awesome [Webpage HTML Export](https://github.com/KosmosisDire/obsidian-webpage-export) plugin.
 
 ## Credits
 

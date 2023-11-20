@@ -43,5 +43,5 @@ Use `\tref` or `\eqref` (by default) instead of `\ref` to suggest only theorems 
 | Note path | folder/note.md |
 
 
-> [!remark] Wikilinks v.s. markdown links
+> [!remark] Wikilinks vs. markdown links
 > This feature inserts wikilinks (i.e. `[[]]`) even if you are turning off `Use [[Wikilinks]]` in the app settings because markdown links are not suitable for dynamically updating the displayed text.

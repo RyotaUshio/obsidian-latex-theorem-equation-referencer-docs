@@ -13,6 +13,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, ...
 ```
 
 - You can use any string you like, `PROOF`/`QED` for example, instead of `\begin{proof}`/`\end{proof}`. See [[#Settings & styling]].
+- It is recommended to [assign a hotkey](https://help.obsidian.md/Customization/Custom+hotkeys) to the command `Insert proof`.
 - Proofs can be folded (collapsed) in Live Preview.
 
 ### Custom texts

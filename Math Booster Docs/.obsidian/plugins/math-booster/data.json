@@ -1,5 +1,5 @@
 {
-  "version": "2.0.0-beta2",
+  "version": "2.0.0-beta7",
   "settings": {
     "/": {
       "profile": "English",
@@ -30,10 +30,17 @@
       "labelPrefix": "",
       "lineByLine": false,
       "theoremCalloutStyle": "Framed",
-      "theoremCalloutFontInherit": false,
+      "theoremCalloutFontInherit": true,
       "beginProof": "BEGINPROOF",
       "endProof": "ENDPROOF",
       "insertSpace": true
+    },
+    "Prefix inference/1.2 - Sample note.md": {},
+    "Prefix inference/A. Sample note.md": {
+      "inferNumberPrefixFromProperty": "section",
+      "inferNumberPrefixUseFirstN": 2,
+      "inferEqNumberPrefix": true,
+      "inferEqNumberPrefixUseFirstN": 1
     }
   },
   "extraSettings": {
@@ -139,8 +146,8 @@
     "enableProof": true,
     "enableMathPreviewInCalloutAndQuote": true,
     "searchModalQueryType": "both",
-    "searchModalRange": "recent",
-    "searchModalDvQuery": ""
+    "searchModalRange": "dataview",
+    "searchModalDvQuery": "LIST WHERE section"
   },
   "excludedFiles": []
 }

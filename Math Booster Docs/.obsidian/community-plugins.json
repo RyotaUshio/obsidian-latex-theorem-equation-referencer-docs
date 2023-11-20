@@ -51,9 +51,12 @@
   "obsidian42-brat",
   "webpage-html-export",
   "dev-utils",
-  "table-editor-obsidian",
   "obsidian-columns",
   "mathlinks",
   "obsidian-style-settings",
-  "math-booster"
+  "math-booster",
+  "dataview",
+  "obsidian-hover-editor",
+  "table-editor-obsidian",
+  "obsidian-emoji-toolbar"
 ]

@@ -8,23 +8,23 @@ The syntax is:
 
 ```
 > [!theorem] Title
->
+> Content
 
 > [!corollary]
-> 
+> Content
 ```
 
 ^1d7868
 
-It will be rendered as below. As you can see, theorem callouts are **automatically numbered** by default. The numbering style can be configured in the settings.
+It will be rendered as below.^[Appearance of theorem callouts depends on how you style them. See [[Styling]] for details.] As you can see, theorem callouts are **automatically numbered** by default. The numbering style can be configured in the settings.
 
 > [!theorem] Title
-> 
+> Content
 
 ^f58c13
 
 > [!corollary]
-> 
+> Content
 
 ^477885
 
@@ -36,18 +36,20 @@ Alternatively, you can use a shorer alias `thm` instead of `theorem`. It will be
 
 ```
 > [!thm] Title
->
+> Content
 
 > [!cor]
-> 
+> Content
 ```
 
 > [!thm] Title
-> 
+> Content
 
 ^c61e2d
 
 > [!cor]
+> Content
+
 
 Here's the complete list of available envionments and aliases.
 
@@ -78,11 +80,11 @@ Similarly to the $\LaTeX$ syntax (e.g. `\begin{theorem*}`), the following will c
 
 ```
 > [!lemma|*] Title
-> 
+> Content
 ```
 
 > [!lemma|*] Title
-> 
+> Content
 
 
 ### Manually numbered theorem callouts
@@ -91,10 +93,11 @@ It is also possible to explicitly specify the theorem number by yourself. It's u
 
 ```
 > [!def|A.1] Title
-> 
+> Content
 ```
 
 > [!def|A.1] Title
+> Content
 
 ### Insert a theorem callout via GUI
 
@@ -103,7 +106,6 @@ If you prefer, you can run the `Insert theorem callout` command to insert a theo
 ![[Theorem callouts-20231117082725480.webp|500]]
 
 ### Customizing the display names of theorem environments
-
 
 
 See [[Profiles]] for the details.
