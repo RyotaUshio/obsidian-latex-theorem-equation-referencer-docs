@@ -162,3 +162,7 @@ See [[Styling|here]] for more details.
 To use your custom CSS snippets, go to `Settings > Community plugins > Math Booster > Global > Theorem callouts > Style` and set it to `Custom`.
 
 As examples, the snippets used for the presets can be found on the [GitHub repository](https://github.com/RyotaUshio/obsidian-math-booster/tree/master/styles) of this plugin.
+
+## Remarks
+
+Theorem callouts will not work perfectly if they are nested inside another callout. Always use them as top-level blocks of your note.

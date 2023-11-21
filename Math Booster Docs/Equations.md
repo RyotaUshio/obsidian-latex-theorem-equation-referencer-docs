@@ -4,7 +4,10 @@ With Math Booster, you can get your equations automatically numbered and referen
 
 [^1]: It was one of Obsidian's [long-standing](https://forum.obsidian.md/t/automatic-equation-numbering-latex-math/1325) problems.
 
-Note that only equations with backlinks (i.e. the ones that are referenced elsewhere) are numbered.
+Importantly, Math Booster only numbers equations with backlinks (i.e. the ones that are referenced elsewhere).
+
+> [!remark] Back-embeds
+> An equation is not numbered when it has backlinks but all of them are embeds. This is intentional, but you can [send a feature request](https://github.com/RyotaUshio/obsidian-math-booster/issues) if you want embeds to be counted as backlinks too.
 
 ## Examples
 

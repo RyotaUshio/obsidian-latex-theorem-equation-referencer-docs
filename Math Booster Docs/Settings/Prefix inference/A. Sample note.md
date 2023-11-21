@@ -15,7 +15,7 @@ section: 1.2
 
 In this sample note, theorem callouts are configured to use this `section` property (set to `1.2` for example) to infer a prefix.
 
-> [!theorem] TItle
+> [!theorem] Title
 
 ## Equations
 

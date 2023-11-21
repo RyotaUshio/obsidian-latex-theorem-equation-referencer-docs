@@ -1,5 +1,6 @@
 {
   "pluginList": [
+    "RyotaUshio/obsidian-better-link-autocompletion",
     "RyotaUshio/obsidian-math-booster"
   ],
   "pluginSubListFrozenVersion": [],

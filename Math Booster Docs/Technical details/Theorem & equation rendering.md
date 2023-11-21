@@ -13,7 +13,7 @@ Use the `src` attribute to obtain a linktext.
 
 #### Hover popover (page preview)
 
-The `src` attribute is not available, but we can listen to the `app.workspace.on('hover-link', ...)` event.
+The `src` attribute is not available, but we can patch the core Page Preview's `onLinkHover` method so that the lastest `linktext` used to trigger hover page preview can be saved in the plugin instance. This approach was inspired by [Hover Editor](https://github.com/nothingislost/obsidian-hover-editor).
 
 ## Live preview
 

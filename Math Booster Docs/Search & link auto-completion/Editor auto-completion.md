@@ -10,6 +10,11 @@ In the editor, type `\ref` (by default). Then, live suggestions for all theorem 
 
 Use `\tref` or `\eqref` (by default) instead of `\ref` to suggest only theorems or only equations.
 
+
+> [!remark] the Better Link Autocompletion plugin
+> I also wrote another plugin that renders equation inside Obsidian's built-in link autocompletion.
+> Check it out here: https://github.com/RyotaUshio/obsidian-better-link-autocompletion
+
 ## Filter files to be searched
 
 - `\rer`/`\trer`/`\eqrer` (by default): search only within recently opened notes

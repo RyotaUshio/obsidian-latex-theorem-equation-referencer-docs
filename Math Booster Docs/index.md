@@ -31,7 +31,7 @@ But you can install the latest beta release using [BRAT](obsidian://show-plugin?
 
 ### Obsidian plugins
 
-Math Booster requires [MathLinks](https://github.com/zhaoshenzhai/obsidian-mathlinks) version 0.5.1 or higher installed to work properly ([[Clever referencing]]).
+Math Booster requires [MathLinks](https://github.com/zhaoshenzhai/obsidian-mathlinks) version 0.5.2 or higher installed to work properly ([[Clever referencing]]).
 
 In version 2, [Dataview](https://github.com/blacksmithgu/obsidian-dataview) is no longer required. But I strongly recommend installing it because it enhances Math Booster's [[Search modal#Dataview queries|search]] functionality significantly.
 

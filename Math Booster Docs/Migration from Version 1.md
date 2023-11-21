@@ -9,11 +9,11 @@ To fully enjoy version 2, run the command `Migrate from version 1` to convert th
 
 ## What's new in version 2
 
-- [[Theorem callouts|New format for theorem callouts]]
-	- cleaner
-	- more intuitive
-	- more keyboard-friendly
-	- less plugin-dependent
+- [[Theorem callouts|New format for theorem callouts]]:
+	- much cleaner,
+	- more intuitive,
+	- more keyboard-friendly,
+	- and less plugin-dependent than the previous format
 - New indexing mechanism:
 	- no longer blocks UI
 	- no longer hard-codes theorem indices in notes directly
@@ -33,8 +33,8 @@ To fully enjoy version 2, run the command `Migrate from version 1` to convert th
   | ------------------ | -------------- | --------------- |
   | Reading view       |       ✅         |         ✅        |
   | Live preview       |       ✅         |         ✅        |
-  | Embeds             |                |                 |
-  | Hover page preview |                |                 |
+  | Embeds             |        ✅       |                 |
+  | Hover page preview |        ✅       |                 |
   | PDF export         |       ✅         |                 |
   ```
   

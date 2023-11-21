@@ -41,6 +41,10 @@
       "inferNumberPrefixUseFirstN": 2,
       "inferEqNumberPrefix": true,
       "inferEqNumberPrefixUseFirstN": 1
+    },
+    "Settings/Prefix inference/A. Sample note.md": {
+      "inferNumberPrefixFromProperty": "section",
+      "inferNumberPrefixUseFirstN": 2
     }
   },
   "extraSettings": {
