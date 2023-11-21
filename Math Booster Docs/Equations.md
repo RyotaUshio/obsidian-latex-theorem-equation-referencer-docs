@@ -217,12 +217,6 @@ Also, make sure there is an empty line under the block ID of the equation. Again
 You cannot insert a link to equations in callouts or blockquotes. 
 This is an inherent limitation of Obsidian rather than this plugin.
 
-### Hover page preview
-
-Equation numbers will not be displayed in the hover preview ([Page Preview](https://help.obsidian.md/Plugins/Page+preview)). This is because there is seemingly no means to reliably get the corresponding line number in a hover popover.
-
-But the good news is that [Hover Editor](https://github.com/nothingislost/obsidian-hover-editor) lets you avoid this problem.
-
 ### PDF export
 
 In version 2, equation numbers are expected to be successfully printed in PDF exports. Being a new feature, however, there might be some corner cases where it doesn't work perfectly. 
@@ -231,7 +225,7 @@ If equation number printing is not successful, Math Booster will show you a noti
 
 Make sure you make a backup before running this command and undo the tag insertion after exporting finishes so that your equations can be dynamically numbered again.
 
-## The `align` Environment
+### The `align` Environment
 
 You can choose whether multi-line equations in an `align` environment are numbered _collectively as a group_:
 
