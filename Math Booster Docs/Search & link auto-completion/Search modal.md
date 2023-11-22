@@ -2,7 +2,7 @@
 
 Run the `Search` command to open a search modal.
 
-This is similar to [[Editor auto-completion]], but available as a search modal like [Quick Switcher](https://help.obsidian.md/Plugins/Quick+switcher) along with further search control functionalities.
+This is similar to [[Custom link completion]], but available as a search modal like [Quick Switcher](https://help.obsidian.md/Plugins/Quick+switcher) along with further search control functionalities.
 
 > [!tip] Search modal can be controled by keyboard alone without mouse
 > Use the `Tab`/`Shift`+`Tab` to move back and forth between the search window and two drop-down menus (`Query type` & `Search range`).

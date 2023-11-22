@@ -17,7 +17,7 @@ To fully enjoy version 2, run the command `Migrate from version 1` to convert th
 - New indexing mechanism:
 	- no longer blocks UI
 	- no longer hard-codes theorem indices in notes directly
-- [[Editor auto-completion]] improvements: filter theorems & equations (entire vault/recent notes/active note/dataview queries)
+- [[Custom link completion]] improvements: filter theorems & equations (entire vault/recent notes/active note/dataview queries)
 - [[Search modal]]: more control & flexibility than editor auto-completion
 - Adding metadata to [[Theorem callouts#Adding metadata with comments|theorems]] and [[Equations#Adding metadata with comments|equations]] with comments
 	- e.g. display name of equations

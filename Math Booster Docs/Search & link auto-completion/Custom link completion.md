@@ -1,4 +1,4 @@
-# Editor auto-completion
+# Custom link completion
 
 Math Booster lets you insert links to theorems or equations with ease.
 
