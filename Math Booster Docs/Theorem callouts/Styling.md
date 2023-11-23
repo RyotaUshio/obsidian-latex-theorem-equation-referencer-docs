@@ -42,14 +42,14 @@ Example theorem cited from: [Tao, Terence, ed. An introduction to measure theory
 ![Plain light](plain.png)
 ![Plain dark](plain-dark.png)
 
-[<button>View CSS snippet</button>](https://github.com/RyotaUshio/obsidian-math-booster/blob/master/styles/plain.css)
+[<button>View CSS snippet</button>](https://github.com/RyotaUshio/obsidian-math-booster/blob/master/styles/plain.scss)
 
 ### Framed
 
 ![Framed](framed.png)
 ![Framed dark](framed-dark.png)
 
-[<button>View CSS snippet</button>](https://github.com/RyotaUshio/obsidian-math-booster/blob/master/styles/framed.css)
+[<button>View CSS snippet</button>](https://github.com/RyotaUshio/obsidian-math-booster/blob/master/styles/framed.scss)
 
 ### MathWiki style
 
@@ -58,11 +58,11 @@ This beautiful style is taken from [MathWiki](https://github.com/zhaoshenzhai/Ma
 
 ![MathWiki style](mathwiki.png)
 
-[<button>View CSS snippet</button>](https://github.com/RyotaUshio/obsidian-math-booster/blob/master/styles/mathwiki.css)
+[<button>View CSS snippet</button>](https://github.com/RyotaUshio/obsidian-math-booster/blob/master/styles/mathwiki.scss)
 
 ### Vivid
 
 ![Vivid light](vivid-light.png)
 ![Vivid dark](vivid-dark.png)
 
-[<button>View CSS snippet</button>](https://github.com/RyotaUshio/obsidian-math-booster/blob/master/styles/vivid.css)
+[<button>View CSS snippet</button>](https://github.com/RyotaUshio/obsidian-math-booster/blob/master/styles/vivid.scss)

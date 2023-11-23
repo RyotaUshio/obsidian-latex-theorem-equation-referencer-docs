@@ -5,22 +5,19 @@
       "profile": "English",
       "titleSuffix": ".",
       "inferNumberPrefix": true,
-      "inferNumberPrefixFromProperty": "",
-      "inferNumberPrefixParseSep": "-.",
-      "inferNumberPrefixPrintSep": ".",
-      "inferNumberPrefixUseFirstN": 1,
+      "inferNumberPrefixFromProperty": "section",
+      "inferNumberPrefixRegExp": "^[0-9]+(\\.[0-9]+)*",
       "numberPrefix": "",
       "numberSuffix": "",
       "numberInit": 1,
       "numberStyle": "arabic",
       "numberDefault": "auto",
       "refFormat": "[type] [number] ([title])",
-      "noteMathLinkFormat": "[type] [number] ([title])",
+      "noteMathLinkFormat": "[title] if title exists, [type] [number] otherwise",
+      "ignoreMainTheoremCalloutWithoutTitle": false,
       "inferEqNumberPrefix": true,
       "inferEqNumberPrefixFromProperty": "",
-      "inferEqNumberPrefixParseSep": "-.",
-      "inferEqNumberPrefixPrintSep": ".",
-      "inferEqNumberPrefixUseFirstN": 1,
+      "inferEqNumberPrefixRegExp": "^[0-9]+(\\.[0-9]+)*",
       "eqNumberPrefix": "",
       "eqNumberSuffix": "",
       "eqNumberInit": 1,
@@ -28,24 +25,22 @@
       "eqRefPrefix": "",
       "eqRefSuffix": "",
       "labelPrefix": "",
-      "lineByLine": false,
+      "lineByLine": true,
       "theoremCalloutStyle": "Framed",
-      "theoremCalloutFontInherit": true,
-      "beginProof": "BEGINPROOF",
-      "endProof": "ENDPROOF",
+      "theoremCalloutFontInherit": false,
+      "beginProof": "\\begin{proof}",
+      "endProof": "\\end{proof}",
       "insertSpace": true
     },
-    "Prefix inference/1.2 - Sample note.md": {},
-    "Prefix inference/A. Sample note.md": {
-      "inferNumberPrefixFromProperty": "section",
-      "inferNumberPrefixUseFirstN": 2,
-      "inferEqNumberPrefix": true,
-      "inferEqNumberPrefixUseFirstN": 1
+    "Integrity.over.Commutative.Rings.md": {},
+    "Experiment/sec/app/gradient.md": {
+      "eqNumberStyle": "Alph"
     },
-    "Settings/Prefix inference/A. Sample note.md": {
-      "inferNumberPrefixFromProperty": "section",
-      "inferNumberPrefixUseFirstN": 2
-    }
+    "Untitled 31.md": {
+      "eqNumberStyle": "Alph"
+    },
+    "main.md": {},
+    "Settings/Prefix inference/5.6. Sample note.md": {}
   },
   "extraSettings": {
     "foldDefault": "",
@@ -114,6 +109,8 @@
         }
       }
     },
+    "showTheoremTitleinBuiltin": true,
+    "renderEquationinBuiltin": true,
     "triggerSuggest": "\\ref",
     "triggerTheoremSuggest": "\\tref",
     "triggerEquationSuggest": "\\eqref",
@@ -146,12 +143,14 @@
     "showTheoremCalloutEditButton": false,
     "setOnlyTheoremAsMain": false,
     "setLabelInModal": false,
-    "excludeExampleCallout": true,
+    "excludeExampleCallout": false,
     "enableProof": true,
     "enableMathPreviewInCalloutAndQuote": true,
     "searchModalQueryType": "both",
-    "searchModalRange": "dataview",
-    "searchModalDvQuery": "LIST WHERE section"
+    "searchModalRange": "recent",
+    "searchModalDvQuery": ""
   },
-  "excludedFiles": []
+  "excludedFiles": [
+    "main.md"
+  ]
 }
