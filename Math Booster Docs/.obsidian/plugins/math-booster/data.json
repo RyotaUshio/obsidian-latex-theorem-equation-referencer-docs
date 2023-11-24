@@ -1,5 +1,5 @@
 {
-  "version": "2.0.0-beta7",
+  "version": "2.0.0",
   "settings": {
     "/": {
       "profile": "English",
@@ -28,8 +28,8 @@
       "lineByLine": true,
       "theoremCalloutStyle": "Framed",
       "theoremCalloutFontInherit": false,
-      "beginProof": "\\begin{proof}",
-      "endProof": "\\end{proof}",
+      "beginProof": "BEGINPROOF",
+      "endProof": "ENDPROOF",
       "insertSpace": true
     },
     "Integrity.over.Commutative.Rings.md": {},
@@ -143,7 +143,7 @@
     "showTheoremCalloutEditButton": false,
     "setOnlyTheoremAsMain": false,
     "setLabelInModal": false,
-    "excludeExampleCallout": false,
+    "excludeExampleCallout": true,
     "enableProof": true,
     "enableMathPreviewInCalloutAndQuote": true,
     "searchModalQueryType": "both",

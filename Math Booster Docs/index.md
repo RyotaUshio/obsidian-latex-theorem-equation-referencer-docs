@@ -1,6 +1,6 @@
 # Math Booster version 2
 
-[Math Booster](https://github.com/RyotaUshio/obsidian-math-booster) is an [Obsidian](https://obsidian.md) plugin for mathematical note-takers.
+[Math Booster](https://github.com/RyotaUshio/obsidian-math-booster) is an [Obsidian](https://obsidian.md) plugin that enhances your mathematical note-taking experience, turning your Obsidian into ***LaTeX on steroids***.
 
 > [!remark] Major version update
 > Using Math Booster since version 1? See [[Migration from Version 1]].
@@ -20,9 +20,9 @@
 
 ## Installation
 
-Since version 2 is still in beta, it's not on the community plugin browser yet.
+You can install this plugin via Obsidian's community plugin browser (see [here](https://help.obsidian.md/Extending+Obsidian/Community+plugins#Install+a+community+plugin) for instructions).
 
-But you can install the latest beta release using [BRAT](obsidian://show-plugin?id=obsidian42-brat):
+Also, you can test the latest beta release using [BRAT](https://github.com/TfTHacker/obsidian42-brat):
 
 1.  Install BRAT and enable it.
 2.  Go to `Options`. In the `Beta Plugin List` section, click on the `Add Beta plugin` button.
@@ -34,7 +34,7 @@ But you can install the latest beta release using [BRAT](obsidian://show-plugin?
 
 ### Obsidian plugins
 
-Math Booster requires [MathLinks](https://github.com/zhaoshenzhai/obsidian-mathlinks) version 0.5.2 or higher installed to work properly ([[Clever referencing]]).
+Math Booster requires [MathLinks](https://github.com/zhaoshenzhai/obsidian-mathlinks) version 0.5.3 or higher installed to work properly ([[Clever referencing]]).
 
 In version 2, [Dataview](https://github.com/blacksmithgu/obsidian-dataview) is no longer required. But I strongly recommend installing it because it enhances Math Booster's [[Search modal#Dataview queries|search]] functionality significantly.
 

@@ -65,10 +65,10 @@ function around1(obj, method, createWrapper) {
 
 // src/patches/page-preview.ts
 var patchPagePreview = (plugin) => {
-  const { app: app2 } = plugin;
+  const { app } = plugin;
   plugin.register(
     // @ts-ignore
-    around(app2.internalPlugins.plugins["page-preview"].instance.constructor.prototype, {
+    around(app.internalPlugins.plugins["page-preview"].instance.constructor.prototype, {
       onLinkHover(old) {
         return function(parent, targetEl, linktext, ...args) {
           old.call(this, parent, targetEl, linktext, ...args);
@@ -80,7 +80,7 @@ var patchPagePreview = (plugin) => {
 };
 
 // src/main.ts
-var import_obsidian36 = require("obsidian");
+var import_obsidian34 = require("obsidian");
 
 // node_modules/obsidian-mathlinks/lib/api/provider.js
 var import_obsidian2 = require("obsidian");
@@ -100,61 +100,37 @@ var Provider = class extends import_obsidian2.Component {
   }
   set enableInSourceMode(enable) {
     this._enableInSourceMode = enable;
-    update(this.mathLinks.app);
+    this.mathLinks.update();
   }
   onunload() {
     const providers = this.mathLinks.providers;
     let index = providers.findIndex(({ provider }) => provider === this);
     providers.splice(index, 1);
-    update(this.mathLinks.app);
+    this.mathLinks.update();
   }
 };
 
-// node_modules/obsidian-mathlinks/lib/utils.js
-var import_obsidian4 = require("obsidian");
-
-// node_modules/obsidian-mathlinks/lib/links/preview.js
-var import_obsidian3 = require("obsidian");
-var import_state = require("@codemirror/state");
-var import_view = require("@codemirror/view");
-var import_language = require("@codemirror/language");
-var forceUpdateEffect = import_state.StateEffect.define();
-
-// node_modules/obsidian-mathlinks/lib/utils.js
-function informChange(app2, eventName, ...callbackArgs) {
-  app2.metadataCache.trigger(eventName, ...callbackArgs);
-  app2.workspace.iterateRootLeaves((leaf) => {
-    var _a;
-    if (leaf.view instanceof import_obsidian4.MarkdownView && leaf.view.getMode() == "source") {
-      (_a = leaf.view.editor.cm) === null || _a === void 0 ? void 0 : _a.dispatch({
-        effects: forceUpdateEffect.of(null)
-      });
-    }
-  });
-}
-
 // node_modules/obsidian-mathlinks/lib/api/index.js
-function addProvider(app2, providerFactory) {
-  if (!isPluginEnabled(app2))
+function addProvider(app, providerFactory) {
+  if (!isPluginEnabled(app))
     throw Error("MathLinks API: MathLinks is not enabled.");
-  const mathLinks = app2.plugins.plugins.mathlinks;
+  const mathLinks = app.plugins.plugins.mathlinks;
   const provider = providerFactory(mathLinks);
   mathLinks.registerProvider(provider);
   return provider;
 }
-function isPluginEnabled(app2) {
-  return app2.plugins.enabledPlugins.has("mathlinks");
+function isPluginEnabled(app) {
+  return app.plugins.enabledPlugins.has("mathlinks");
 }
-function update(app2, file) {
-  if (file) {
-    informChange(app2, "mathlinks:update", file);
-  } else {
-    informChange(app2, "mathlinks:update-all");
-  }
+function update(app, file) {
+  if (!isPluginEnabled(app))
+    throw Error("MathLinks API: MathLinks is not enabled.");
+  const mathlinks = app.plugins.plugins.mathlinks;
+  mathlinks.update(file);
 }
 
 // src/settings/profile.ts
-var import_obsidian5 = require("obsidian");
+var import_obsidian3 = require("obsidian");
 
 // src/env.ts
 var THEOREM_LIKE_ENV_IDs = [
@@ -272,7 +248,7 @@ var DEFAULT_PROFILES = {
     }
   }
 };
-var ManageProfileModal = class extends import_obsidian5.Modal {
+var ManageProfileModal = class extends import_obsidian3.Modal {
   constructor(plugin, helper, profileSetting) {
     super(plugin.app);
     this.plugin = plugin;
@@ -283,13 +259,13 @@ var ManageProfileModal = class extends import_obsidian5.Modal {
     let { contentEl } = this;
     contentEl.empty();
     this.titleEl.setText("Manage profiles");
-    new import_obsidian5.Setting(contentEl).setName("Add profile").addButton((button) => {
+    new import_obsidian3.Setting(contentEl).setName("Add profile").addButton((button) => {
       button.setIcon("plus").onClick(() => {
         new AddProfileModal(this).open();
       });
     });
     for (const id in this.plugin.extraSettings.profiles) {
-      new import_obsidian5.Setting(contentEl).setName(id).addButton((editButton) => {
+      new import_obsidian3.Setting(contentEl).setName(id).addButton((editButton) => {
         editButton.setIcon("pencil").setTooltip("Edit").setCta().onClick(() => {
           new EditProfileModal(
             this.plugin.extraSettings.profiles[id],
@@ -322,7 +298,7 @@ var ManageProfileModal = class extends import_obsidian5.Modal {
     );
   }
 };
-var EditProfileModal = class extends import_obsidian5.Modal {
+var EditProfileModal = class extends import_obsidian3.Modal {
   constructor(profile, parent) {
     super(parent.app);
     this.profile = profile;
@@ -333,12 +309,12 @@ var EditProfileModal = class extends import_obsidian5.Modal {
     const { contentEl } = this;
     contentEl.empty();
     this.titleEl.setText(`Edit profile`);
-    new import_obsidian5.Setting(contentEl).setName("Name").addText((text) => {
+    new import_obsidian3.Setting(contentEl).setName("Name").addText((text) => {
       text.setValue(this.profile.id).onChange((value) => {
         this.profile.id = value;
       });
     });
-    new import_obsidian5.Setting(contentEl).setName("Tags").setDesc('Comma-separated list of tags. Only lower-case alphabets or hyphens are allowed. Each tag is converted into a CSS class ".theorem-callout-<tag>".').addText((text) => {
+    new import_obsidian3.Setting(contentEl).setName("Tags").setDesc('Comma-separated list of tags. Only lower-case alphabets or hyphens are allowed. Each tag is converted into a CSS class ".theorem-callout-<tag>".').addText((text) => {
       text.setValue(this.profile.meta.tags.join(", ")).onChange((value) => {
         const tags = value.split(",").map((item) => item.trim());
         if (tags.every((tag) => {
@@ -347,20 +323,20 @@ var EditProfileModal = class extends import_obsidian5.Modal {
         })) {
           this.profile.meta.tags = tags;
         } else {
-          new import_obsidian5.Notice("A tag can only contain lower-case alphabets or hyphens.", 5e3);
+          new import_obsidian3.Notice("A tag can only contain lower-case alphabets or hyphens.", 5e3);
         }
       });
     });
-    new import_obsidian5.Setting(contentEl).setName("Theorem-like environments").setHeading();
+    new import_obsidian3.Setting(contentEl).setName("Theorem-like environments").setHeading();
     for (const envID of THEOREM_LIKE_ENV_IDs) {
-      this.settingRefs[envID] = new import_obsidian5.Setting(contentEl).setName(envID).addText((text) => {
+      this.settingRefs[envID] = new import_obsidian3.Setting(contentEl).setName(envID).addText((text) => {
         var _a;
         text.setValue((_a = this.profile.body.theorem[envID]) != null ? _a : "").onChange((value) => {
           this.profile.body.theorem[envID] = value;
         });
       });
     }
-    new import_obsidian5.Setting(contentEl).setName("Proofs").setHeading();
+    new import_obsidian3.Setting(contentEl).setName("Proofs").setHeading();
     const prettyNames = [
       "Beginning of proof",
       "Ending of proof",
@@ -370,14 +346,14 @@ var EditProfileModal = class extends import_obsidian5.Modal {
     for (let i = 0; i < PROOF_SETTING_KEYS.length; i++) {
       const key = PROOF_SETTING_KEYS[i];
       const name = prettyNames[i];
-      this.settingRefs[key] = new import_obsidian5.Setting(contentEl).setName(name).addText((text) => {
+      this.settingRefs[key] = new import_obsidian3.Setting(contentEl).setName(name).addText((text) => {
         var _a;
         text.setValue((_a = this.profile.body.proof[key]) != null ? _a : "").onChange((value) => {
           this.profile.body.proof[key] = value;
         });
       });
     }
-    const linkedProofHeading = new import_obsidian5.Setting(contentEl).setName("Linked proofs").setDesc(`For example, you can render \`${DEFAULT_SETTINGS.beginProof}\`@[[link to Theorem 1]] as "${DEFAULT_PROFILES[DEFAULT_SETTINGS.profile].body.proof.linkedBeginPrefix}Theorem 1${DEFAULT_PROFILES[DEFAULT_SETTINGS.profile].body.proof.linkedBeginSuffix}".`).setHeading().settingEl;
+    const linkedProofHeading = new import_obsidian3.Setting(contentEl).setName("Linked proofs").setDesc(`For example, you can render \`${DEFAULT_SETTINGS.beginProof}\`@[[link to Theorem 1]] as "${DEFAULT_PROFILES[DEFAULT_SETTINGS.profile].body.proof.linkedBeginPrefix}Theorem 1${DEFAULT_PROFILES[DEFAULT_SETTINGS.profile].body.proof.linkedBeginSuffix}".`).setHeading().settingEl;
     contentEl.insertBefore(linkedProofHeading, this.settingRefs.linkedBeginPrefix.settingEl);
   }
   onClose() {
@@ -396,7 +372,7 @@ var EditProfileModal = class extends import_obsidian5.Modal {
     this.parent.open();
   }
 };
-var ConfirmProfileDeletionModal = class extends import_obsidian5.Modal {
+var ConfirmProfileDeletionModal = class extends import_obsidian3.Modal {
   constructor(id, parent) {
     super(parent.app);
     this.id = id;
@@ -408,7 +384,7 @@ var ConfirmProfileDeletionModal = class extends import_obsidian5.Modal {
     this.titleEl.setText("Delete profile");
     contentEl.createDiv({ text: `Are you sure you want to delete the profile "${this.id}"?` });
     const buttonContainerEl = contentEl.createDiv({ cls: "math-booster-button-container" });
-    new import_obsidian5.ButtonComponent(buttonContainerEl).setButtonText("Delete").setCta().onClick(() => {
+    new import_obsidian3.ButtonComponent(buttonContainerEl).setButtonText("Delete").setCta().onClick(() => {
       const affected = getAffectedFiles(this.parent.plugin, this.id);
       if (affected.length) {
         new UpdateProfileModal(this, this.id, affected).open();
@@ -417,7 +393,7 @@ var ConfirmProfileDeletionModal = class extends import_obsidian5.Modal {
         this.close();
       }
     });
-    new import_obsidian5.ButtonComponent(buttonContainerEl).setButtonText("Cancel").onClick(() => {
+    new import_obsidian3.ButtonComponent(buttonContainerEl).setButtonText("Cancel").onClick(() => {
       this.close();
     });
   }
@@ -427,7 +403,7 @@ var ConfirmProfileDeletionModal = class extends import_obsidian5.Modal {
     this.parent.open();
   }
 };
-var AddProfileModal = class extends import_obsidian5.Modal {
+var AddProfileModal = class extends import_obsidian3.Modal {
   constructor(parent) {
     super(parent.app);
     this.parent = parent;
@@ -438,11 +414,11 @@ var AddProfileModal = class extends import_obsidian5.Modal {
     let id;
     this.titleEl.setText("Add profile");
     const addProfileEl = contentEl.createDiv({ cls: "math-booster-add-profile" });
-    new import_obsidian5.TextComponent(addProfileEl).setPlaceholder("Enter name...").onChange((value) => {
+    new import_obsidian3.TextComponent(addProfileEl).setPlaceholder("Enter name...").onChange((value) => {
       id = value;
     });
     const buttonContainerEl = addProfileEl.createDiv({ cls: "math-booster-button-container" });
-    new import_obsidian5.ButtonComponent(buttonContainerEl).setButtonText("Add").setCta().onClick(() => {
+    new import_obsidian3.ButtonComponent(buttonContainerEl).setButtonText("Add").setCta().onClick(() => {
       const newBody = { theorem: {} };
       for (const envID of THEOREM_LIKE_ENV_IDs) {
         newBody.theorem[envID] = "";
@@ -455,7 +431,7 @@ var AddProfileModal = class extends import_obsidian5.Modal {
       new EditProfileModal(this.parent.plugin.extraSettings.profiles[id], this.parent).open();
       this.close();
     });
-    new import_obsidian5.ButtonComponent(buttonContainerEl).setButtonText("Cancel").onClick(() => {
+    new import_obsidian3.ButtonComponent(buttonContainerEl).setButtonText("Cancel").onClick(() => {
       this.close();
     });
   }
@@ -465,7 +441,7 @@ var AddProfileModal = class extends import_obsidian5.Modal {
     this.parent.open();
   }
 };
-var UpdateProfileModal = class extends import_obsidian5.Modal {
+var UpdateProfileModal = class extends import_obsidian3.Modal {
   constructor(parent, deletedID, affected) {
     super(parent.app);
     this.parent = parent;
@@ -481,7 +457,7 @@ var UpdateProfileModal = class extends import_obsidian5.Modal {
     const ids = Object.keys(profiles);
     let newProfileID;
     const buttonContainerEl = contentEl.createDiv({ cls: "math-booster-button-container" });
-    const dropdown = new import_obsidian5.DropdownComponent(buttonContainerEl);
+    const dropdown = new import_obsidian3.DropdownComponent(buttonContainerEl);
     dropdown.addOption("", "");
     for (const id of ids) {
       if (id != this.deletedID) {
@@ -492,11 +468,11 @@ var UpdateProfileModal = class extends import_obsidian5.Modal {
     dropdown.onChange((value) => {
       newProfileID = value;
     });
-    new import_obsidian5.ButtonComponent(buttonContainerEl).setButtonText("Confirm").setCta().onClick(async () => {
+    new import_obsidian3.ButtonComponent(buttonContainerEl).setButtonText("Confirm").setCta().onClick(async () => {
       updateProfile(this.parent.parent.plugin, this.affected, newProfileID);
       this.close();
     });
-    new import_obsidian5.ButtonComponent(buttonContainerEl).setButtonText("Cancel").onClick(() => {
+    new import_obsidian3.ButtonComponent(buttonContainerEl).setButtonText("Cancel").onClick(() => {
       this.close();
     });
     const listEl = contentEl.createEl("ul");
@@ -675,22 +651,22 @@ var DEFAULT_EXTRA_SETTINGS = {
 };
 
 // src/settings/tab.ts
-var import_obsidian16 = require("obsidian");
+var import_obsidian14 = require("obsidian");
 
 // src/settings/helper.ts
-var import_obsidian10 = require("obsidian");
-
-// src/utils/obsidian.ts
-var import_obsidian7 = require("obsidian");
 var import_obsidian8 = require("obsidian");
 
-// src/utils/editor.ts
+// src/utils/obsidian.ts
+var import_obsidian5 = require("obsidian");
 var import_obsidian6 = require("obsidian");
+
+// src/utils/editor.ts
+var import_obsidian4 = require("obsidian");
 function locToEditorPosition(loc) {
   return { ch: loc.col, line: loc.line };
 }
 function isLivePreview(state) {
-  return state.field(import_obsidian6.editorLivePreviewField);
+  return state.field(import_obsidian4.editorLivePreviewField);
 }
 function isSourceMode(state) {
   return !isLivePreview(state);
@@ -726,9 +702,9 @@ function hasOverlap(range1, range2) {
 
 // src/utils/obsidian.ts
 function iterDescendantFiles(file, callback) {
-  if (file instanceof import_obsidian8.TFile) {
+  if (file instanceof import_obsidian6.TFile) {
     callback(file);
-  } else if (file instanceof import_obsidian8.TFolder) {
+  } else if (file instanceof import_obsidian6.TFolder) {
     for (const child of file.children) {
       iterDescendantFiles(child, callback);
     }
@@ -739,7 +715,7 @@ function getAncestors(file) {
   let ancestor = file;
   while (ancestor) {
     ancestors.push(ancestor);
-    if (file instanceof import_obsidian8.TFolder && file.isRoot()) {
+    if (file instanceof import_obsidian6.TFolder && file.isRoot()) {
       break;
     }
     ancestor = ancestor.parent;
@@ -751,7 +727,7 @@ function isEqualToOrChildOf(file1, file2) {
   if (file1 == file2) {
     return true;
   }
-  if (file2 instanceof import_obsidian8.TFolder && file2.isRoot()) {
+  if (file2 instanceof import_obsidian6.TFolder && file2.isRoot()) {
     return true;
   }
   let ancestor = file1.parent;
@@ -784,12 +760,12 @@ function getSectionCacheFromMouseEvent(event, type, view, cache) {
   const pos = (_a = view.posAtCoords(event)) != null ? _a : view.posAtCoords(event, false);
   return getSectionCacheFromPos(cache, pos, type);
 }
-function getProperty(app2, file, name) {
+function getProperty(app, file, name) {
   var _a, _b;
-  return (_b = (_a = app2.metadataCache.getFileCache(file)) == null ? void 0 : _a.frontmatter) == null ? void 0 : _b[name];
+  return (_b = (_a = app.metadataCache.getFileCache(file)) == null ? void 0 : _a.frontmatter) == null ? void 0 : _b[name];
 }
-function getPropertyLink(app2, file, name) {
-  const cache = app2.metadataCache.getFileCache(file);
+function getPropertyLink(app, file, name) {
+  const cache = app.metadataCache.getFileCache(file);
   if (cache == null ? void 0 : cache.frontmatterLinks) {
     for (const link of cache.frontmatterLinks) {
       if (link.key == name) {
@@ -798,9 +774,9 @@ function getPropertyLink(app2, file, name) {
     }
   }
 }
-function getPropertyOrLinkTextInProperty(app2, file, name) {
+function getPropertyOrLinkTextInProperty(app, file, name) {
   var _a, _b;
-  return (_b = (_a = getPropertyLink(app2, file, name)) == null ? void 0 : _a.link) != null ? _b : getProperty(app2, file, name);
+  return (_b = (_a = getPropertyLink(app, file, name)) == null ? void 0 : _a.link) != null ? _b : getProperty(app, file, name);
 }
 function generateBlockID(cache, length = 6) {
   let id = "";
@@ -814,15 +790,15 @@ function generateBlockID(cache, length = 6) {
   }
   return id;
 }
-function resolveLinktext(app2, linktext, sourcePath) {
-  const { path, subpath } = (0, import_obsidian7.parseLinktext)(linktext);
-  const targetFile = app2.metadataCache.getFirstLinkpathDest(path, sourcePath);
+function resolveLinktext(app, linktext, sourcePath) {
+  const { path, subpath } = (0, import_obsidian5.parseLinktext)(linktext);
+  const targetFile = app.metadataCache.getFirstLinkpathDest(path, sourcePath);
   if (!targetFile)
     return null;
-  const targetCache = app2.metadataCache.getFileCache(targetFile);
+  const targetCache = app.metadataCache.getFileCache(targetFile);
   if (!targetCache)
     return null;
-  const result = (0, import_obsidian7.resolveSubpath)(targetCache, subpath);
+  const result = (0, import_obsidian5.resolveSubpath)(targetCache, subpath);
   return { file: targetFile, subpathResult: result };
 }
 function getMarkdownPreviewViewEl(view) {
@@ -838,10 +814,10 @@ function getMarkdownSourceViewEl(view) {
     return secondCandidate;
   }
 }
-async function openFileAndSelectPosition(app2, file, position, ...leafArgs) {
-  const leaf = app2.workspace.getLeaf(...leafArgs);
+async function openFileAndSelectPosition(app, file, position, ...leafArgs) {
+  const leaf = app.workspace.getLeaf(...leafArgs);
   await leaf.openFile(file);
-  if (leaf.view instanceof import_obsidian7.MarkdownView) {
+  if (leaf.view instanceof import_obsidian5.MarkdownView) {
     const editor = leaf.view.editor;
     const from = locToEditorPosition(position.start);
     const to = locToEditorPosition(position.end);
@@ -859,20 +835,20 @@ function isPluginOlderThan(plugin, version) {
 }
 function getModifierNameInPlatform(mod) {
   if (mod == "Mod") {
-    return import_obsidian7.Platform.isMacOS || import_obsidian7.Platform.isIosApp ? "\u2318" : "ctrl";
+    return import_obsidian5.Platform.isMacOS || import_obsidian5.Platform.isIosApp ? "\u2318" : "ctrl";
   }
   if (mod == "Shift") {
     return "shift";
   }
   if (mod == "Alt") {
-    return import_obsidian7.Platform.isMacOS || import_obsidian7.Platform.isIosApp ? "\u2325" : "alt";
+    return import_obsidian5.Platform.isMacOS || import_obsidian5.Platform.isIosApp ? "\u2325" : "alt";
   }
   if (mod == "Meta") {
-    return import_obsidian7.Platform.isMacOS || import_obsidian7.Platform.isIosApp ? "\u2318" : import_obsidian7.Platform.isWin ? "win" : "meta";
+    return import_obsidian5.Platform.isMacOS || import_obsidian5.Platform.isIosApp ? "\u2318" : import_obsidian5.Platform.isWin ? "win" : "meta";
   }
   return "ctrl";
 }
-var MutationObservingChild = class extends import_obsidian7.Component {
+var MutationObservingChild = class extends import_obsidian5.Component {
   constructor(targetEl, callback, options) {
     super();
     this.targetEl = targetEl;
@@ -993,12 +969,12 @@ function inferNumberPrefix(source, regExp) {
     return prefix;
   }
 }
-function getNumberPrefix(app2, file, settings) {
+function getNumberPrefix(app, file, settings) {
   var _a;
   if (settings.numberPrefix) {
     return settings.numberPrefix;
   }
-  const source = settings.inferNumberPrefixFromProperty ? getPropertyOrLinkTextInProperty(app2, file, settings.inferNumberPrefixFromProperty) : file.basename;
+  const source = settings.inferNumberPrefixFromProperty ? getPropertyOrLinkTextInProperty(app, file, settings.inferNumberPrefixFromProperty) : file.basename;
   if (settings.inferNumberPrefix && source) {
     return (_a = inferNumberPrefix(
       source,
@@ -1007,18 +983,17 @@ function getNumberPrefix(app2, file, settings) {
   }
   return "";
 }
-function getEqNumberPrefix(app2, file, settings) {
+function getEqNumberPrefix(app, file, settings) {
   var _a;
   if (settings.eqNumberPrefix) {
     return settings.eqNumberPrefix;
   }
-  const source = settings.inferEqNumberPrefixFromProperty ? getPropertyOrLinkTextInProperty(app2, file, settings.inferEqNumberPrefixFromProperty) : file.basename;
+  const source = settings.inferEqNumberPrefixFromProperty ? getPropertyOrLinkTextInProperty(app, file, settings.inferEqNumberPrefixFromProperty) : file.basename;
   if (settings.inferEqNumberPrefix && source) {
     const prefix = (_a = inferNumberPrefix(
       source,
       settings.inferEqNumberPrefixRegExp
     )) != null ? _a : "";
-    console.log({ source, prefix });
     return prefix;
   }
   return "";
@@ -1041,7 +1016,7 @@ var TheoremCalloutSettingsHelper = class {
   makeSettingPane() {
     var _a;
     const { contentEl } = this;
-    new import_obsidian10.Setting(contentEl).setName("Type").addDropdown((dropdown) => {
+    new import_obsidian8.Setting(contentEl).setName("Type").addDropdown((dropdown) => {
       var _a2;
       for (const id of THEOREM_LIKE_ENV_IDs) {
         const envName = formatTheoremCalloutType(this.plugin, { type: id, profile: this.defaultSettings.profile });
@@ -1052,7 +1027,7 @@ var TheoremCalloutSettingsHelper = class {
       }
       const initType = dropdown.getValue();
       this.settings.type = initType;
-      const numberSetting = new import_obsidian10.Setting(contentEl).setName("Number");
+      const numberSetting = new import_obsidian8.Setting(contentEl).setName("Number");
       const numberSettingDescList = numberSetting.descEl.createEl("ul");
       numberSettingDescList.createEl(
         "li",
@@ -1076,8 +1051,8 @@ var TheoremCalloutSettingsHelper = class {
           this.settings.number = value;
         });
       });
-      const titlePane = new import_obsidian10.Setting(contentEl).setName("Title").setDesc("You can include inline math in the title.");
-      const labelPane = this.plugin.extraSettings.setLabelInModal ? new import_obsidian10.Setting(contentEl).setName("Pandoc label") : void 0;
+      const titlePane = new import_obsidian8.Setting(contentEl).setName("Title").setDesc("You can include inline math in the title.");
+      const labelPane = this.plugin.extraSettings.setLabelInModal ? new import_obsidian8.Setting(contentEl).setName("Pandoc label") : void 0;
       const labelPrefixEl = labelPane == null ? void 0 : labelPane.controlEl.createDiv({
         text: THEOREM_LIKE_ENVs[this.settings.type].prefix + ":" + ((_a2 = this.defaultSettings.labelPrefix) != null ? _a2 : "")
       });
@@ -1141,7 +1116,7 @@ var SettingsHelper = class {
     });
   }
   addDropdownSetting(name, options, prettyName, description, defaultValue, additionalOnChange) {
-    const setting = new import_obsidian10.Setting(this.contentEl).setName(prettyName);
+    const setting = new import_obsidian8.Setting(this.contentEl).setName(prettyName);
     if (description) {
       setting.setDesc(description);
     }
@@ -1169,7 +1144,7 @@ var SettingsHelper = class {
     return setting;
   }
   addTextSetting(name, prettyName, description, number = false) {
-    const setting = new import_obsidian10.Setting(this.contentEl).setName(prettyName);
+    const setting = new import_obsidian8.Setting(this.contentEl).setName(prettyName);
     if (description) {
       setting.setDesc(description);
     }
@@ -1195,7 +1170,7 @@ var SettingsHelper = class {
     return setting;
   }
   addToggleSetting(name, prettyName, description, additionalOnChange) {
-    const setting = new import_obsidian10.Setting(this.contentEl).setName(prettyName);
+    const setting = new import_obsidian8.Setting(this.contentEl).setName(prettyName);
     if (description) {
       setting.setDesc(description);
     }
@@ -1220,7 +1195,7 @@ var SettingsHelper = class {
     return setting;
   }
   addSliderSetting(name, limits, prettyName, description) {
-    const setting = new import_obsidian10.Setting(this.contentEl).setName(prettyName);
+    const setting = new import_obsidian8.Setting(this.contentEl).setName(prettyName);
     if (description) {
       setting.setDesc(description);
     }
@@ -1244,7 +1219,7 @@ var SettingsHelper = class {
     return setting;
   }
   addHeading(text, cls) {
-    const setting = new import_obsidian10.Setting(this.contentEl).setName(text).setHeading();
+    const setting = new import_obsidian8.Setting(this.contentEl).setName(text).setHeading();
     if (cls)
       setting.settingEl.classList.add(...cls);
     return setting;
@@ -1252,7 +1227,7 @@ var SettingsHelper = class {
 };
 var MathContextSettingsHelper = class extends SettingsHelper {
   constructor(contentEl, settings, defaultSettings, plugin, file) {
-    const isRoot = file instanceof import_obsidian10.TFolder && file.isRoot();
+    const isRoot = file instanceof import_obsidian8.TFolder && file.isRoot();
     super(contentEl, settings, defaultSettings, plugin, !isRoot, !isRoot);
     this.file = file;
   }
@@ -1312,7 +1287,7 @@ var MathContextSettingsHelper = class extends SettingsHelper {
   }
   addProfileSetting(defaultValue) {
     const profileSetting = this.addDropdownSetting("profile", Object.keys(this.plugin.extraSettings.profiles), "Profile", "A profile defines the displayed name of each environment.", defaultValue);
-    new import_obsidian10.ButtonComponent(profileSetting.controlEl).setButtonText("Manage profiles").onClick(() => {
+    new import_obsidian8.ButtonComponent(profileSetting.controlEl).setButtonText("Manage profiles").onClick(() => {
       new ManageProfileModal(this.plugin, this, profileSetting).open();
     });
     profileSetting.controlEl.classList.add("math-booster-profile-setting");
@@ -1388,7 +1363,7 @@ var ExtraSettingsHelper = class extends SettingsHelper {
   }
 };
 function addFoldOptionSetting(el, name, onChange, defaultValue) {
-  return new import_obsidian10.Setting(el).setName(name).addDropdown((dropdown) => {
+  return new import_obsidian8.Setting(el).setName(name).addDropdown((dropdown) => {
     dropdown.addOption("", "Unfoldable");
     dropdown.addOption("+", "Foldable & expanded by default");
     dropdown.addOption("-", "Foldable & folded by default");
@@ -1398,10 +1373,10 @@ function addFoldOptionSetting(el, name, onChange, defaultValue) {
 }
 
 // src/settings/modals.ts
-var import_obsidian14 = require("obsidian");
+var import_obsidian12 = require("obsidian");
 
 // src/utils/plugin.ts
-var import_obsidian12 = require("obsidian");
+var import_obsidian10 = require("obsidian");
 
 // src/index/utils/normalizers.ts
 function getFileTitle(path) {
@@ -1905,6 +1880,14 @@ var _MarkdownPage = class _MarkdownPage {
     const block = section == null ? void 0 : section.$blocks.find((block2) => block2.$position.start <= line && line <= block2.$position.end);
     return block;
   }
+  getBlockByOffset(offset) {
+    for (const section of this.$sections) {
+      for (const block of section.$blocks) {
+        if (block.$pos.start.offset <= offset && offset <= block.$pos.end.offset)
+          return block;
+      }
+    }
+  }
   static isMarkdownPage(object) {
     return object !== void 0 && "$typename" in object && object.$typename === "Page";
   }
@@ -2116,7 +2099,7 @@ _EquationBlock.TYPES = ["markdown", "block", "block-math-booster", "block-equati
 var EquationBlock = _EquationBlock;
 
 // src/file-io.ts
-var import_obsidian11 = require("obsidian");
+var import_obsidian9 = require("obsidian");
 
 // src/utils/general.ts
 function splitIntoLines(text) {
@@ -2231,7 +2214,7 @@ var NonActiveNoteIO = class extends FileIO {
   }
 };
 function getIO(plugin, file, activeMarkdownView) {
-  activeMarkdownView = activeMarkdownView != null ? activeMarkdownView : plugin.app.workspace.getActiveViewOfType(import_obsidian11.MarkdownView);
+  activeMarkdownView = activeMarkdownView != null ? activeMarkdownView : plugin.app.workspace.getActiveViewOfType(import_obsidian9.MarkdownView);
   if (activeMarkdownView && activeMarkdownView.file == file && isEditingView(activeMarkdownView)) {
     return new ActiveNoteIO(plugin, file, activeMarkdownView.editor);
   } else {
@@ -2257,7 +2240,7 @@ function getProfile(plugin, file) {
 function staticifyEqNumber(plugin, file) {
   const page = plugin.indexManager.index.load(file.path);
   if (!MarkdownPage.isMarkdownPage(page)) {
-    new import_obsidian12.Notice(`Failed to fetch the metadata of file ${file.path}.`);
+    new import_obsidian10.Notice(`Failed to fetch the metadata of file ${file.path}.`);
     return;
   }
   const io = getIO(plugin, file);
@@ -2302,9 +2285,9 @@ function insertDisplayMath(editor) {
   editor.setCursor(cursorPos);
 }
 async function rewriteTheoremCalloutFromV1ToV2(plugin, file) {
-  const { app: app2, indexManager } = plugin;
+  const { app, indexManager } = plugin;
   const page = await indexManager.reload(file);
-  await app2.vault.process(file, (data) => convertTheoremCalloutFromV1ToV2(data, page));
+  await app.vault.process(file, (data) => convertTheoremCalloutFromV1ToV2(data, page));
 }
 var convertTheoremCalloutFromV1ToV2 = (data, page) => {
   const lines = data.split("\n");
@@ -2365,9 +2348,9 @@ function isTheoremCallout(plugin, type) {
 }
 
 // src/settings/modals.ts
-var MathSettingModal = class extends import_obsidian14.Modal {
-  constructor(app2, plugin, callback) {
-    super(app2);
+var MathSettingModal = class extends import_obsidian12.Modal {
+  constructor(app, plugin, callback) {
+    super(app);
     this.plugin = plugin;
     this.callback = callback;
   }
@@ -2376,7 +2359,7 @@ var MathSettingModal = class extends import_obsidian14.Modal {
   }
   addButton(buttonText) {
     const { contentEl } = this;
-    new import_obsidian14.Setting(contentEl).addButton((btn) => {
+    new import_obsidian12.Setting(contentEl).addButton((btn) => {
       btn.setButtonText(buttonText).setCta().onClick(() => {
         this.close();
         if (this.callback) {
@@ -2399,8 +2382,8 @@ var MathSettingModal = class extends import_obsidian14.Modal {
   }
 };
 var TheoremCalloutModal = class extends MathSettingModal {
-  constructor(app2, plugin, file, callback, buttonText, headerText, currentCalloutSettings) {
-    super(app2, plugin, callback);
+  constructor(app, plugin, file, callback, buttonText, headerText, currentCalloutSettings) {
+    super(app, plugin, callback);
     this.file = file;
     this.buttonText = buttonText;
     this.headerText = headerText;
@@ -2424,7 +2407,7 @@ var TheoremCalloutModal = class extends MathSettingModal {
     }
     const helper = new TheoremCalloutSettingsHelper(contentEl, this.settings, this.defaultSettings, this.plugin, this.file);
     helper.makeSettingPane();
-    new import_obsidian14.Setting(contentEl).setName("Open local settings for the current note").addButton((button) => {
+    new import_obsidian12.Setting(contentEl).setName("Open local settings for the current note").addButton((button) => {
       button.setButtonText("Open").onClick(() => {
         const modal = new ContextSettingModal(
           this.app,
@@ -2440,8 +2423,8 @@ var TheoremCalloutModal = class extends MathSettingModal {
   }
 };
 var ContextSettingModal = class extends MathSettingModal {
-  constructor(app2, plugin, file, callback, parent) {
-    super(app2, plugin, callback);
+  constructor(app, plugin, file, callback, parent) {
+    super(app, plugin, callback);
     this.file = file;
     this.parent = parent;
   }
@@ -2470,9 +2453,9 @@ var ContextSettingModal = class extends MathSettingModal {
     }
   }
 };
-var FileSuggestModal = class extends import_obsidian14.FuzzySuggestModal {
-  constructor(app2, plugin) {
-    super(app2);
+var FileSuggestModal = class extends import_obsidian12.FuzzySuggestModal {
+  constructor(app, plugin) {
+    super(app);
     this.plugin = plugin;
   }
   getItems() {
@@ -2482,10 +2465,10 @@ var FileSuggestModal = class extends import_obsidian14.FuzzySuggestModal {
     return file.path;
   }
   filterCallback(abstractFile) {
-    if (abstractFile instanceof import_obsidian14.TFile && abstractFile.extension != "md") {
+    if (abstractFile instanceof import_obsidian12.TFile && abstractFile.extension != "md") {
       return false;
     }
-    if (abstractFile instanceof import_obsidian14.TFolder && abstractFile.isRoot()) {
+    if (abstractFile instanceof import_obsidian12.TFolder && abstractFile.isRoot()) {
       return false;
     }
     for (const path of this.plugin.excludedFiles) {
@@ -2498,8 +2481,8 @@ var FileSuggestModal = class extends import_obsidian14.FuzzySuggestModal {
   }
 };
 var LocalContextSettingsSuggestModal = class extends FileSuggestModal {
-  constructor(app2, plugin, settingTab) {
-    super(app2, plugin);
+  constructor(app, plugin, settingTab) {
+    super(app, plugin);
     this.settingTab = settingTab;
   }
   onChooseItem(file, evt) {
@@ -2508,8 +2491,8 @@ var LocalContextSettingsSuggestModal = class extends FileSuggestModal {
   }
 };
 var FileExcludeSuggestModal = class extends FileSuggestModal {
-  constructor(app2, plugin, manageModal) {
-    super(app2, plugin);
+  constructor(app, plugin, manageModal) {
+    super(app, plugin);
     this.manageModal = manageModal;
   }
   onChooseItem(file, evt) {
@@ -2525,9 +2508,9 @@ var FileExcludeSuggestModal = class extends FileSuggestModal {
     return super.filterCallback(abstractFile);
   }
 };
-var ExcludedFileManageModal = class extends import_obsidian14.Modal {
-  constructor(app2, plugin) {
-    super(app2);
+var ExcludedFileManageModal = class extends import_obsidian12.Modal {
+  constructor(app, plugin) {
+    super(app);
     this.plugin = plugin;
   }
   onOpen() {
@@ -2538,7 +2521,7 @@ var ExcludedFileManageModal = class extends import_obsidian14.Modal {
     const { contentEl } = this;
     contentEl.empty();
     contentEl.createEl("h3", { text: "Excluded files/folders" });
-    new import_obsidian14.Setting(contentEl).setName("The files/folders in this list and their descendants will be excluded from suggestion for local settings.").addButton((btn) => {
+    new import_obsidian12.Setting(contentEl).setName("The files/folders in this list and their descendants will be excluded from suggestion for local settings.").addButton((btn) => {
       btn.setIcon("plus").onClick((event) => {
         new FileExcludeSuggestModal(this.app, this.plugin, this).open();
       });
@@ -2547,7 +2530,7 @@ var ExcludedFileManageModal = class extends import_obsidian14.Modal {
       const list = contentEl.createEl("ul");
       for (const path of this.plugin.excludedFiles) {
         const item = list.createEl("li").createDiv();
-        new import_obsidian14.Setting(item).setName(path).addExtraButton((btn) => {
+        new import_obsidian12.Setting(item).setName(path).addExtraButton((btn) => {
           btn.setIcon("x").onClick(async () => {
             this.plugin.excludedFiles.remove(path);
             this.newDisplay();
@@ -2564,13 +2547,13 @@ var ExcludedFileManageModal = class extends import_obsidian14.Modal {
 };
 
 // src/settings/tab.ts
-var MathSettingTab = class extends import_obsidian16.PluginSettingTab {
-  constructor(app2, plugin) {
-    super(app2, plugin);
+var MathSettingTab = class extends import_obsidian14.PluginSettingTab {
+  constructor(app, plugin) {
+    super(app, plugin);
     this.plugin = plugin;
   }
   addRestoreDefaultsButton() {
-    new import_obsidian16.Setting(this.containerEl).addButton((btn) => {
+    new import_obsidian14.Setting(this.containerEl).addButton((btn) => {
       btn.setButtonText("Restore defaults");
       btn.onClick(async () => {
         Object.assign(this.plugin.settings[VAULT_ROOT], DEFAULT_SETTINGS);
@@ -2645,12 +2628,12 @@ var MathSettingTab = class extends import_obsidian16.PluginSettingTab {
     );
     this.addRestoreDefaultsButton();
     containerEl.createEl("h4", { text: "Local" });
-    new import_obsidian16.Setting(containerEl).setName("Local settings").setDesc('You can set up local (i.e. file-specific or folder-specific) settings, which have more precedence than the global settings. Local settings can be configured in various ways; here in the plugin settings, right-clicking in the file explorer, the "Open local settings for the current file" command, and the "Open local settings for the current file" button in the theorem callout settings pop-ups.').addButton((btn) => {
+    new import_obsidian14.Setting(containerEl).setName("Local settings").setDesc('You can set up local (i.e. file-specific or folder-specific) settings, which have more precedence than the global settings. Local settings can be configured in various ways; here in the plugin settings, right-clicking in the file explorer, the "Open local settings for the current file" command, and the "Open local settings for the current file" button in the theorem callout settings pop-ups.').addButton((btn) => {
       btn.setButtonText("Search files & folders").onClick(() => {
         new LocalContextSettingsSuggestModal(this.app, this.plugin, this).open();
       });
     });
-    new import_obsidian16.Setting(containerEl).setName("Excluded files").setDesc("You can make your search results more visible by excluding certain files or folders.").addButton((btn) => {
+    new import_obsidian14.Setting(containerEl).setName("Excluded files").setDesc("You can make your search results more visible by excluding certain files or folders.").addButton((btn) => {
       btn.setButtonText("Manage").onClick(() => {
         new ExcludedFileManageModal(this.app, this.plugin).open();
       });
@@ -2686,6 +2669,7 @@ var CleverefProvider = class extends Provider {
     if (targetSubpathResult.type === "block") {
       const block = page.$blocks.get(targetSubpathResult.block.id);
       if (MathBoosterBlock.isMathBoosterBlock(block)) {
+        console.log({ block, refName: block.$refName });
         if (block.$display)
           return path ? processedPath + " > " + block.$display : block.$display;
         if (block.$refName)
@@ -2701,10 +2685,10 @@ var CleverefProvider = class extends Provider {
 };
 
 // src/theorem-callouts/renderer.ts
-var import_obsidian18 = require("obsidian");
+var import_obsidian16 = require("obsidian");
 
 // src/utils/render.ts
-var import_obsidian17 = require("obsidian");
+var import_obsidian15 = require("obsidian");
 function renderTextWithMath(source) {
   const elements = [];
   const mathPattern = /\$(.*?[^\s])\$/g;
@@ -2718,7 +2702,7 @@ function renderTextWithMath(source) {
       elements.push(source.slice(textFrom, textTo));
     }
     textFrom = mathPattern.lastIndex;
-    const mathJaxEl = (0, import_obsidian17.renderMath)(mathString, false);
+    const mathJaxEl = (0, import_obsidian15.renderMath)(mathString, false);
     const mathSpan = createSpan({ cls: ["math", "math-inline", "is-loaded"] });
     mathSpan.replaceChildren(mathJaxEl);
     elements.push(mathSpan);
@@ -2730,7 +2714,7 @@ function renderTextWithMath(source) {
 }
 async function renderMarkdown(markdown, sourcePath, component) {
   const el = createSpan();
-  await import_obsidian17.MarkdownRenderer.renderMarkdown(markdown, el, sourcePath, component);
+  await import_obsidian15.MarkdownRenderer.renderMarkdown(markdown, el, sourcePath, component);
   for (const child of el.children) {
     if (child.tagName == "P") {
       return child.childNodes;
@@ -2800,7 +2784,7 @@ function parseLatexComment(line) {
 // src/theorem-callouts/renderer.ts
 var createTheoremCalloutPostProcessor = (plugin) => async (element, context) => {
   const file = plugin.app.vault.getAbstractFileByPath(context.sourcePath);
-  if (!(file instanceof import_obsidian18.TFile))
+  if (!(file instanceof import_obsidian16.TFile))
     return null;
   const pdf = isPdfExport(element);
   let index = 0;
@@ -2817,7 +2801,7 @@ var createTheoremCalloutPostProcessor = (plugin) => async (element, context) => 
     }
   }
 };
-var TheoremCalloutRenderer = class _TheoremCalloutRenderer extends import_obsidian18.MarkdownRenderChild {
+var TheoremCalloutRenderer = class _TheoremCalloutRenderer extends import_obsidian16.MarkdownRenderChild {
   constructor(containerEl, context, file, plugin) {
     super(containerEl);
     this.context = context;
@@ -3075,7 +3059,7 @@ var TheoremCalloutRenderer = class _TheoremCalloutRenderer extends import_obsidi
       return;
     if (this.editButton)
       return;
-    const button = new import_obsidian18.ExtraButtonComponent(this.containerEl).setIcon("settings-2").setTooltip("Edit theorem callout settings");
+    const button = new import_obsidian16.ExtraButtonComponent(this.containerEl).setIcon("settings-2").setTooltip("Edit theorem callout settings");
     this.editButton = button.extraSettingsEl;
     this.editButton.addClass("theorem-callout-setting-button");
     button.extraSettingsEl.addEventListener("click", async (ev) => {
@@ -3093,7 +3077,7 @@ var TheoremCalloutRenderer = class _TheoremCalloutRenderer extends import_obsidi
           if (lineNumber !== void 0) {
             await io.setLine(lineNumber, generateTheoremCalloutFirstLine(settings));
           } else {
-            new import_obsidian18.Notice(
+            new import_obsidian16.Notice(
               `${this.plugin.manifest.name}: Could not find the line number to overwrite. Retry later.`,
               5e3
             );
@@ -3119,7 +3103,7 @@ var TheoremCalloutRenderer = class _TheoremCalloutRenderer extends import_obsidi
     const cache = this.app.metadataCache.getFileCache(this.file);
     if (!cache)
       return null;
-    const view = this.app.workspace.getActiveViewOfType(import_obsidian18.MarkdownView);
+    const view = this.app.workspace.getActiveViewOfType(import_obsidian16.MarkdownView);
     if (!view)
       return null;
     if (isEditingView(view) && this.file.path === ((_b = view.file) == null ? void 0 : _b.path) && view.editor.cm) {
@@ -3155,8 +3139,8 @@ function readSettingsFromEl(calloutEl) {
 }
 
 // src/theorem-callouts/view-plugin.ts
-var import_view2 = require("@codemirror/view");
-var createTheoremCalloutNumberingViewPlugin = (plugin) => import_view2.ViewPlugin.fromClass(
+var import_view = require("@codemirror/view");
+var createTheoremCalloutNumberingViewPlugin = (plugin) => import_view.ViewPlugin.fromClass(
   class {
     constructor(view) {
       this.view = view;
@@ -3185,22 +3169,22 @@ var createTheoremCalloutNumberingViewPlugin = (plugin) => import_view2.ViewPlugi
 );
 
 // src/equations/reading-view.ts
-var import_obsidian21 = require("obsidian");
+var import_obsidian19 = require("obsidian");
 
 // src/equations/common.ts
-var import_obsidian20 = require("obsidian");
+var import_obsidian18 = require("obsidian");
 function replaceMathTag(displayMathEl, equation, settings) {
   if (equation.$manualTag)
     return;
   const taggedText = getMathTextWithTag(equation, settings.lineByLine);
   if (taggedText) {
-    const mjxContainerEl = (0, import_obsidian20.renderMath)(taggedText, true);
+    const mjxContainerEl = (0, import_obsidian18.renderMath)(taggedText, true);
     if (equation.$printName !== null) {
       displayMathEl.setAttribute("width", "full");
       displayMathEl.style.cssText = mjxContainerEl.style.cssText;
     } else {
       displayMathEl.removeAttribute("width");
-      displayMathEl.style.cssText = "";
+      displayMathEl.removeAttribute("style");
     }
     displayMathEl.replaceChildren(...mjxContainerEl.childNodes);
   }
@@ -3235,7 +3219,7 @@ var createEquationNumberProcessor = (plugin) => async (el, ctx) => {
   if (isPdfExport(el))
     preprocessForPdfExport(plugin, el, ctx);
   const sourceFile = plugin.app.vault.getAbstractFileByPath(ctx.sourcePath);
-  if (!(sourceFile instanceof import_obsidian21.TFile))
+  if (!(sourceFile instanceof import_obsidian19.TFile))
     return;
   const mjxContainerElements = el.querySelectorAll('mjx-container.MathJax[display="true"]');
   for (const mjxContainerEl of mjxContainerElements) {
@@ -3243,13 +3227,14 @@ var createEquationNumberProcessor = (plugin) => async (el, ctx) => {
       new EquationNumberRenderer(mjxContainerEl, plugin, sourceFile, ctx)
     );
   }
+  (0, import_obsidian19.finishRenderMath)();
 };
 function preprocessForPdfExport(plugin, el, ctx) {
   try {
     const topLevelMathDivs = el.querySelectorAll(':scope > div.math.math-block > mjx-container.MathJax[display="true"]');
     const page = plugin.indexManager.index.load(ctx.sourcePath);
     if (!MarkdownPage.isMarkdownPage(page)) {
-      new import_obsidian21.Notice(`${plugin.manifest.name}: Failed to fetch the metadata for PDF export; equation numbers will not be displayed in the exported PDF.`);
+      new import_obsidian19.Notice(`${plugin.manifest.name}: Failed to fetch the metadata for PDF export; equation numbers will not be displayed in the exported PDF.`);
       return;
     }
     let equationIndex = 0;
@@ -3263,14 +3248,14 @@ function preprocessForPdfExport(plugin, el, ctx) {
       }
     }
     if (topLevelMathDivs.length != equationIndex) {
-      new import_obsidian21.Notice(`${plugin.manifest.name}: Something unexpected occured while preprocessing for PDF export. Equation numbers might not be displayed properly in the exported PDF.`);
+      new import_obsidian19.Notice(`${plugin.manifest.name}: Something unexpected occured while preprocessing for PDF export. Equation numbers might not be displayed properly in the exported PDF.`);
     }
   } catch (err) {
-    new import_obsidian21.Notice(`${plugin.manifest.name}: Something unexpected occured while preprocessing for PDF export. See the developer console for the details. Equation numbers might not be displayed properly in the exported PDF.`);
+    new import_obsidian19.Notice(`${plugin.manifest.name}: Something unexpected occured while preprocessing for PDF export. See the developer console for the details. Equation numbers might not be displayed properly in the exported PDF.`);
     console.error(err);
   }
 }
-var EquationNumberRenderer = class extends import_obsidian21.MarkdownRenderChild {
+var EquationNumberRenderer = class extends import_obsidian19.MarkdownRenderChild {
   constructor(containerEl, plugin, file, context) {
     super(containerEl);
     this.plugin = plugin;
@@ -3313,7 +3298,7 @@ var EquationNumberRenderer = class extends import_obsidian21.MarkdownRenderChild
     setTimeout(() => this.update());
   }
   onunload() {
-    (0, import_obsidian21.finishRenderMath)();
+    (0, import_obsidian19.finishRenderMath)();
   }
   update() {
     const id = this.containerEl.getAttribute("data-equation-block-id");
@@ -3354,23 +3339,23 @@ var EquationNumberRenderer = class extends import_obsidian21.MarkdownRenderChild
 };
 
 // src/equations/live-preview.ts
-var import_state2 = require("@codemirror/state");
-var import_view3 = require("@codemirror/view");
-var import_obsidian23 = require("obsidian");
+var import_state = require("@codemirror/state");
+var import_view2 = require("@codemirror/view");
+var import_obsidian21 = require("obsidian");
 function createEquationNumberPlugin(plugin) {
-  const { app: app2, indexManager: { index } } = plugin;
-  const forceUpdateEffect2 = import_state2.StateEffect.define();
+  const { app, indexManager: { index } } = plugin;
+  const forceUpdateEffect = import_state.StateEffect.define();
   plugin.registerEvent(plugin.indexManager.on("index-updated", (file) => {
-    app2.workspace.iterateAllLeaves((leaf) => {
+    app.workspace.iterateAllLeaves((leaf) => {
       var _a, _b;
-      if (leaf.view instanceof import_obsidian23.MarkdownView && ((_a = leaf.view.file) == null ? void 0 : _a.path) === file.path && leaf.view.getMode() === "source") {
-        (_b = leaf.view.editor.cm) == null ? void 0 : _b.dispatch({ effects: forceUpdateEffect2.of(null) });
+      if (leaf.view instanceof import_obsidian21.MarkdownView && ((_a = leaf.view.file) == null ? void 0 : _a.path) === file.path && leaf.view.getMode() === "source") {
+        (_b = leaf.view.editor.cm) == null ? void 0 : _b.dispatch({ effects: forceUpdateEffect.of(null) });
       }
     });
   }));
-  return import_view3.ViewPlugin.fromClass(class {
+  return import_view2.ViewPlugin.fromClass(class {
     constructor(view) {
-      this.file = view.state.field(import_obsidian23.editorInfoField).file;
+      this.file = view.state.field(import_obsidian21.editorInfoField).file;
       this.page = null;
       this.settings = DEFAULT_SETTINGS;
       if (this.file) {
@@ -3383,7 +3368,7 @@ function createEquationNumberPlugin(plugin) {
       }
     }
     updateFile(state) {
-      this.file = state.field(import_obsidian23.editorInfoField).file;
+      this.file = state.field(import_obsidian21.editorInfoField).file;
     }
     async updatePage(file) {
       const page = index.load(file.path);
@@ -3399,7 +3384,7 @@ function createEquationNumberPlugin(plugin) {
         this.updateFile(update2.state);
       if (!this.file)
         return;
-      if (update2.transactions.some((tr) => tr.effects.some((effect) => effect.is(forceUpdateEffect2)))) {
+      if (update2.transactions.some((tr) => tr.effects.some((effect) => effect.is(forceUpdateEffect)))) {
         this.settings = resolveSettings(void 0, plugin, this.file);
         this.updatePage(this.file).then((updatedPage) => this.updateEquationNumber(update2.view, updatedPage));
       } else if (update2.geometryChanged) {
@@ -3412,49 +3397,52 @@ function createEquationNumberPlugin(plugin) {
     async updateEquationNumber(view, page) {
       const mjxContainerElements = view.contentDOM.querySelectorAll(':scope > .cm-embed-block.math > mjx-container.MathJax[display="true"]');
       for (const mjxContainerEl of mjxContainerElements) {
+        const pos = view.posAtDOM(mjxContainerEl);
+        let block;
         try {
-          const pos = view.posAtDOM(mjxContainerEl);
           const line = view.state.doc.lineAt(pos).number - 1;
-          const block = page.getBlockByLineNumber(line);
-          if (!(block instanceof EquationBlock))
-            continue;
-          if (mjxContainerEl.getAttribute("data-equation-print-name") !== block.$printName) {
-            replaceMathTag(mjxContainerEl, block, this.settings);
-          }
-          if (block.$printName !== null)
-            mjxContainerEl.setAttribute("data-equation-print-name", block.$printName);
-          else
-            mjxContainerEl.removeAttribute("data-equation-print-name");
+          block = page.getBlockByLineNumber(line);
         } catch (err) {
+          block = page.getBlockByOffset(pos);
         }
+        if (!(block instanceof EquationBlock))
+          continue;
+        if (mjxContainerEl.getAttribute("data-equation-print-name") !== block.$printName) {
+          replaceMathTag(mjxContainerEl, block, this.settings);
+        }
+        if (block.$printName !== null)
+          mjxContainerEl.setAttribute("data-equation-print-name", block.$printName);
+        else
+          mjxContainerEl.removeAttribute("data-equation-print-name");
       }
+      (0, import_obsidian21.finishRenderMath)();
     }
     destroy() {
-      (0, import_obsidian23.finishRenderMath)();
+      (0, import_obsidian21.finishRenderMath)();
     }
   });
 }
 
 // src/render-math-in-callouts.ts
-var import_obsidian24 = require("obsidian");
-var import_state4 = require("@codemirror/state");
-var import_view4 = require("@codemirror/view");
-var import_language3 = require("@codemirror/language");
+var import_obsidian22 = require("obsidian");
+var import_state3 = require("@codemirror/state");
+var import_view3 = require("@codemirror/view");
+var import_language2 = require("@codemirror/language");
 
 // src/theorem-callouts/state-field.ts
-var import_state3 = require("@codemirror/state");
-var import_language2 = require("@codemirror/language");
+var import_state2 = require("@codemirror/state");
+var import_language = require("@codemirror/language");
 var CALLOUT = /HyperMD-callout_HyperMD-quote_HyperMD-quote-([1-9][0-9]*)/;
-var TheoremCalloutInfo = class extends import_state3.RangeValue {
+var TheoremCalloutInfo = class extends import_state2.RangeValue {
   constructor(index) {
     super();
     this.index = index;
   }
 };
-var createTheoremCalloutsField = (plugin) => import_state3.StateField.define({
+var createTheoremCalloutsField = (plugin) => import_state2.StateField.define({
   create(state) {
     const ranges = getTheoremCalloutInfos(plugin, state, state.doc, 0, 0);
-    return import_state3.RangeSet.of(ranges);
+    return import_state2.RangeSet.of(ranges);
   },
   update(value, tr) {
     if (!tr.docChanged)
@@ -3483,7 +3471,7 @@ var createTheoremCalloutsField = (plugin) => import_state3.StateField.define({
 function getTheoremCalloutInfos(plugin, state, doc, from, init) {
   var _a;
   const ranges = [];
-  const tree = (_a = (0, import_language2.ensureSyntaxTree)(state, doc.length)) != null ? _a : (0, import_language2.syntaxTree)(state);
+  const tree = (_a = (0, import_language.ensureSyntaxTree)(state, doc.length)) != null ? _a : (0, import_language.syntaxTree)(state);
   let theoremIndex = init;
   tree.iterate({
     from,
@@ -3516,7 +3504,7 @@ var INLINE_MATH_BEGIN = "formatting_formatting-math_formatting-math-begin_keywor
 var MATH_END = "formatting_formatting-math_formatting-math-end_keyword_math_math-";
 var ERROR_MATH = "error_math";
 var BLOCKQUOTE = /HyperMD-quote_HyperMD-quote-([1-9][0-9]*)/;
-var MathPreviewWidget = class extends import_view4.WidgetType {
+var MathPreviewWidget = class extends import_view3.WidgetType {
   /** It is critical to pass a MathInfo object with a PRE-RENDERED MathJax element 
    * for decreasing the number of the expensive renderMath() calls */
   constructor(info) {
@@ -3540,7 +3528,7 @@ var MathPreviewWidget = class extends import_view4.WidgetType {
         }
       });
       cmEmbedBlockEl.appendChild(this.info.mathEl);
-      const editButton = new import_obsidian24.ExtraButtonComponent(cmEmbedBlockEl).setIcon("code-2").setTooltip("Edit this block");
+      const editButton = new import_obsidian22.ExtraButtonComponent(cmEmbedBlockEl).setIcon("code-2").setTooltip("Edit this block");
       editButton.extraSettingsEl.addEventListener("click", (ev) => {
         ev.stopPropagation();
         view.dispatch({ selection: { anchor: this.info.from + 2, head: this.info.to - 2 } });
@@ -3554,7 +3542,7 @@ var MathPreviewWidget = class extends import_view4.WidgetType {
     return false;
   }
 };
-var MathInfo = class extends import_state4.RangeValue {
+var MathInfo = class extends import_state3.RangeValue {
   // whether this.overlap has changed in the last update
   constructor(mathText, display, from, to, insideCallout) {
     super();
@@ -3568,13 +3556,13 @@ var MathInfo = class extends import_state4.RangeValue {
     this.render();
   }
   async render() {
-    this.mathEl = (0, import_obsidian24.renderMath)(this.mathText, this.display);
+    this.mathEl = (0, import_obsidian22.renderMath)(this.mathText, this.display);
   }
   toWidget() {
     return new MathPreviewWidget(this);
   }
   toDecoration(which) {
-    return import_view4.Decoration[which]({
+    return import_view3.Decoration[which]({
       widget: this.toWidget(),
       block: this.display,
       side: which == "widget" ? 1 : void 0
@@ -3583,8 +3571,8 @@ var MathInfo = class extends import_state4.RangeValue {
   }
 };
 function buildMathInfoSet(state) {
-  const tree = (0, import_language3.syntaxTree)(state);
-  const builder = new import_state4.RangeSetBuilder();
+  const tree = (0, import_language2.syntaxTree)(state);
+  const builder = new import_state3.RangeSetBuilder();
   let from = -1;
   let mathText;
   let insideMath = false;
@@ -3671,7 +3659,7 @@ function buildMathInfoSet(state) {
   }
   return builder.finish();
 }
-var mathPreviewInfoField = import_state4.StateField.define({
+var mathPreviewInfoField = import_state3.StateField.define({
   create(state) {
     return {
       mathInfoSet: buildMathInfoSet(state),
@@ -3733,7 +3721,7 @@ var mathPreviewInfoField = import_state4.StateField.define({
     return { mathInfoSet, isInCalloutsOrQuotes, hasOverlappingMath, hasOverlappingDisplayMath, rerendered };
   }
 });
-var inlineMathPreview = import_view4.ViewPlugin.fromClass(
+var inlineMathPreview = import_view3.ViewPlugin.fromClass(
   class {
     constructor(view) {
       this.buildDecorations(view);
@@ -3745,16 +3733,16 @@ var inlineMathPreview = import_view4.ViewPlugin.fromClass(
     }
     buildDecorations(view) {
       if (isSourceMode(view.state)) {
-        this.decorations = import_view4.Decoration.none;
+        this.decorations = import_view3.Decoration.none;
         return;
       }
       const field = view.state.field(mathPreviewInfoField);
       if (!field.isInCalloutsOrQuotes) {
-        this.decorations = import_view4.Decoration.none;
+        this.decorations = import_view3.Decoration.none;
         return;
       }
       const range = view.state.selection.main;
-      const builder = new import_state4.RangeSetBuilder();
+      const builder = new import_state3.RangeSetBuilder();
       for (const { from, to } of view.visibleRanges) {
         field.mathInfoSet.between(
           from,
@@ -3775,16 +3763,16 @@ var inlineMathPreview = import_view4.ViewPlugin.fromClass(
   },
   { decorations: (instance) => instance.decorations }
 );
-var displayMathPreviewForCallout = import_state4.StateField.define({
+var displayMathPreviewForCallout = import_state3.StateField.define({
   create(state) {
-    return import_view4.Decoration.none;
+    return import_view3.Decoration.none;
   },
   update(value, transaction) {
-    const builder = new import_state4.RangeSetBuilder();
+    const builder = new import_state3.RangeSetBuilder();
     const range = transaction.state.selection.main;
     const field = transaction.state.field(mathPreviewInfoField);
     if (isSourceMode(transaction.state)) {
-      return import_view4.Decoration.none;
+      return import_view3.Decoration.none;
     }
     if (!transaction.docChanged && !overlapStateChanged(transaction.state)) {
       return value;
@@ -3807,10 +3795,10 @@ var displayMathPreviewForCallout = import_state4.StateField.define({
     return builder.finish();
   },
   provide(field) {
-    return import_view4.EditorView.decorations.from(field);
+    return import_view3.EditorView.decorations.from(field);
   }
 });
-var hideDisplayMathPreviewInQuote = import_view4.ViewPlugin.fromClass(
+var hideDisplayMathPreviewInQuote = import_view3.ViewPlugin.fromClass(
   class {
     constructor(view) {
       this.impl(view);
@@ -3837,7 +3825,7 @@ var hideDisplayMathPreviewInQuote = import_view4.ViewPlugin.fromClass(
 );
 function isInBlockquoteOrCallout(state) {
   const range = state.selection.main;
-  const tree = (0, import_language3.syntaxTree)(state);
+  const tree = (0, import_language2.syntaxTree)(state);
   let foundQuote = false;
   tree.iterate({
     enter(node) {
@@ -3868,7 +3856,7 @@ function overlapStateChanged(state) {
   const infoSet = state.field(mathPreviewInfoField).mathInfoSet;
   return rangeSetSome(infoSet, (info) => info.overlapChanged);
 }
-var displayMathPreviewForQuote = import_view4.ViewPlugin.fromClass(
+var displayMathPreviewForQuote = import_view3.ViewPlugin.fromClass(
   class {
     constructor(view) {
       this.impl(view);
@@ -3913,10 +3901,10 @@ var displayMathPreviewForQuote = import_view4.ViewPlugin.fromClass(
 );
 
 // src/proof.ts
-var import_obsidian25 = require("obsidian");
-var import_state5 = require("@codemirror/state");
-var import_view5 = require("@codemirror/view");
-var import_language4 = require("@codemirror/language");
+var import_obsidian23 = require("obsidian");
+var import_state4 = require("@codemirror/state");
+var import_view4 = require("@codemirror/view");
+var import_language3 = require("@codemirror/language");
 var INLINE_CODE = "inline-code";
 var LINK_BEGIN = "formatting-link_formatting-link-start";
 var LINK = "hmd-internal-link";
@@ -3938,15 +3926,15 @@ function parseAtSignLink(codeEl) {
   const afterNext = next == null ? void 0 : next.nextSibling;
   const afterAfterNext = afterNext == null ? void 0 : afterNext.nextSibling;
   if (afterNext) {
-    if (next.nodeType == Node.TEXT_NODE && next.textContent == "@" && afterNext instanceof HTMLElement && afterNext.matches("a.internal-link") && afterAfterNext instanceof HTMLElement && afterAfterNext.matches("a.mathLink-internal-link")) {
+    if (next.nodeType == Node.TEXT_NODE && next.textContent == "@" && afterNext instanceof HTMLElement && afterNext.matches("a.original-internal-link") && afterAfterNext instanceof HTMLElement && afterAfterNext.matches("a.mathLink-internal-link")) {
       return { atSign: next, links: [afterNext, afterAfterNext] };
     }
   }
 }
-var ProofRenderer = class extends import_obsidian25.MarkdownRenderChild {
-  constructor(app2, plugin, containerEl, which, file, display) {
+var ProofRenderer = class extends import_obsidian23.MarkdownRenderChild {
+  constructor(app, plugin, containerEl, which, file, display) {
     super(containerEl);
-    this.app = app2;
+    this.app = app;
     this.plugin = plugin;
     this.which = which;
     this.file = file;
@@ -4003,8 +3991,9 @@ var ProofRenderer = class extends import_obsidian25.MarkdownRenderChild {
 var createProofProcessor = (plugin) => (element, context) => {
   if (!plugin.extraSettings.enableProof)
     return;
-  const file = plugin.app.vault.getAbstractFileByPath(context.sourcePath);
-  if (!(file instanceof import_obsidian25.TFile))
+  const { app } = plugin;
+  const file = app.vault.getAbstractFileByPath(context.sourcePath);
+  if (!(file instanceof import_obsidian23.TFile))
     return;
   const settings = resolveSettings(void 0, plugin, file);
   const codes = element.querySelectorAll("code");
@@ -4026,7 +4015,7 @@ var createProofProcessor = (plugin) => (element, context) => {
     }
   }
 };
-var ProofWidget = class _ProofWidget extends import_view5.WidgetType {
+var ProofWidget = class _ProofWidget extends import_view4.WidgetType {
   constructor(which, pos, profile, sourcePath, plugin) {
     super();
     this.which = which;
@@ -4056,7 +4045,7 @@ var ProofWidget = class _ProofWidget extends import_view5.WidgetType {
     return false;
   }
 };
-var proofPositionFieldFactory = (plugin) => import_state5.StateField.define({
+var proofPositionFieldFactory = (plugin) => import_state4.StateField.define({
   create(state) {
     return makeField(state, plugin);
   },
@@ -4068,12 +4057,12 @@ var proofPositionFieldFactory = (plugin) => import_state5.StateField.define({
   }
 });
 function makeField(state, plugin) {
-  const file = state.field(import_obsidian25.editorInfoField).file;
+  const file = state.field(import_obsidian23.editorInfoField).file;
   if (!file)
     return [];
   const settings = resolveSettings(void 0, plugin, file);
   const field = [];
-  const tree = (0, import_language4.syntaxTree)(state);
+  const tree = (0, import_language3.syntaxTree)(state);
   let begin;
   let end;
   let display;
@@ -4118,7 +4107,7 @@ function makeField(state, plugin) {
   });
   return field;
 }
-var proofDecorationFactory = (plugin) => import_view5.ViewPlugin.fromClass(
+var proofDecorationFactory = (plugin) => import_view4.ViewPlugin.fromClass(
   class {
     constructor(view) {
       this.impl(view);
@@ -4127,14 +4116,14 @@ var proofDecorationFactory = (plugin) => import_view5.ViewPlugin.fromClass(
       this.impl(update2.view);
     }
     impl(view) {
-      const file = view.state.field(import_obsidian25.editorInfoField).file;
+      const file = view.state.field(import_obsidian23.editorInfoField).file;
       if (!file) {
-        this.decorations = import_view5.Decoration.none;
+        this.decorations = import_view4.Decoration.none;
         return;
       }
       const settings = resolveSettings(void 0, plugin, file);
       const profile = plugin.extraSettings.profiles[settings.profile];
-      const builder = new import_state5.RangeSetBuilder();
+      const builder = new import_state4.RangeSetBuilder();
       const range = view.state.selection.main;
       const positions = view.state.field(plugin.proofPositionField);
       for (const pos of positions) {
@@ -4144,7 +4133,7 @@ var proofDecorationFactory = (plugin) => import_view5.ViewPlugin.fromClass(
               builder.add(
                 pos.begin.from,
                 pos.linknodes.linkEnd.to,
-                import_view5.Decoration.replace({
+                import_view4.Decoration.replace({
                   widget: new ProofWidget("begin", pos, profile, file.path, plugin)
                 })
               );
@@ -4153,7 +4142,7 @@ var proofDecorationFactory = (plugin) => import_view5.ViewPlugin.fromClass(
             builder.add(
               pos.begin.from,
               pos.begin.to,
-              import_view5.Decoration.replace({
+              import_view4.Decoration.replace({
                 widget: new ProofWidget("begin", pos, profile, file.path, plugin)
               })
             );
@@ -4163,7 +4152,7 @@ var proofDecorationFactory = (plugin) => import_view5.ViewPlugin.fromClass(
           builder.add(
             pos.end.from,
             pos.end.to,
-            import_view5.Decoration.replace({
+            import_view4.Decoration.replace({
               widget: new ProofWidget("end", pos, profile)
             })
           );
@@ -4176,7 +4165,7 @@ var proofDecorationFactory = (plugin) => import_view5.ViewPlugin.fromClass(
     decorations: (instance) => instance.decorations
   }
 );
-var proofFoldFactory = (plugin) => import_language4.foldService.of((state, lineStart, lineEnd) => {
+var proofFoldFactory = (plugin) => import_language3.foldService.of((state, lineStart, lineEnd) => {
   const positions = state.field(plugin.proofPositionField);
   for (const pos of positions) {
     if (pos.begin && pos.end && lineStart <= pos.begin.from && pos.begin.to <= lineEnd) {
@@ -4197,7 +4186,7 @@ function insertProof(plugin, editor, context) {
 }
 
 // src/index/manager.ts
-var import_obsidian27 = require("obsidian");
+var import_obsidian25 = require("obsidian");
 
 // src/index/utils/deferred.ts
 function deferred() {
@@ -4214,7 +4203,7 @@ function deferred() {
 }
 
 // src/index/web-worker/importer.ts
-var import_obsidian26 = require("obsidian");
+var import_obsidian24 = require("obsidian");
 
 // src/index/web-worker/transferable.ts
 var Transferable;
@@ -4310,7 +4299,7 @@ var DEFAULT_THROTTLE = {
   workers: 2,
   utilization: 0.75
 };
-var MathImporter = class extends import_obsidian26.Component {
+var MathImporter = class extends import_obsidian24.Component {
   constructor(plugin, vault, metadataCache, throttle) {
     super();
     this.plugin = plugin;
@@ -4603,6 +4592,7 @@ var MathIndex = class {
    * Warning: This function doesn't trigger MathLinks.update(), so you have to call it by yourself!
    */
   updateNames(file) {
+    console.log("Updating names for " + file.path);
     const settings = resolveSettings(void 0, this.plugin, file);
     let blockOrdinal = 1;
     let block;
@@ -4657,7 +4647,9 @@ var MathIndex = class {
           page.$refName = this.formatMathLink(file, resolvedSettings, "noteMathLinkFormat");
       }
     }
+    console.log("updating names finished, triggering index-updated event");
     this.plugin.indexManager.trigger("index-updated", file);
+    console.log("index-updated event triggered");
   }
   formatMathLink(file, resolvedSettings, key) {
     const refFormat = resolvedSettings[key];
@@ -4682,20 +4674,20 @@ function iterableExists(object, key) {
 }
 
 // src/index/manager.ts
-var MathIndexManager = class extends import_obsidian27.Component {
+var MathIndexManager = class extends import_obsidian25.Component {
   constructor(plugin, settings) {
     super();
     this.plugin = plugin;
     this.settings = settings;
-    const { app: app2 } = plugin;
-    this.app = app2;
-    this.vault = app2.vault;
-    this.metadataCache = app2.metadataCache;
-    this.events = new import_obsidian27.Events();
-    this.index = new MathIndex(plugin, app2.vault, app2.metadataCache);
+    const { app } = plugin;
+    this.app = app;
+    this.vault = app.vault;
+    this.metadataCache = app.metadataCache;
+    this.events = new import_obsidian25.Events();
+    this.index = new MathIndex(plugin, app.vault, app.metadataCache);
     this.initialized = false;
     this.addChild(
-      this.importer = new MathImporter(this.plugin, app2.vault, app2.metadataCache, () => {
+      this.importer = new MathImporter(this.plugin, app.vault, app.metadataCache, () => {
         return {
           workers: settings.importerNumThreads,
           utilization: Math.max(0.1, Math.min(1, settings.importerUtilization))
@@ -4713,7 +4705,7 @@ var MathIndexManager = class extends import_obsidian27.Component {
     this.registerEvent(this.vault.on("rename", this.rename, this));
     this.registerEvent(
       this.vault.on("delete", async (file) => {
-        if (file instanceof import_obsidian27.TFile) {
+        if (file instanceof import_obsidian25.TFile) {
           await this.updateLinkedOnDeltion(file);
         }
         if (file.path in this.plugin.settings) {
@@ -4761,7 +4753,7 @@ var MathIndexManager = class extends import_obsidian27.Component {
     this.addChild(init);
   }
   async rename(file, oldPath) {
-    if (!(file instanceof import_obsidian27.TFile))
+    if (!(file instanceof import_obsidian25.TFile))
       return;
     this.plugin.settings[file.path] = JSON.parse(JSON.stringify(this.plugin.settings[oldPath]));
     delete this.plugin.settings[oldPath];
@@ -4811,7 +4803,7 @@ var MathIndexManager = class extends import_obsidian27.Component {
       for (const link of oldPage.$links) {
         if (link.type === "block") {
           const linkedFile = this.vault.getAbstractFileByPath(link.path);
-          if (linkedFile instanceof import_obsidian27.TFile) {
+          if (linkedFile instanceof import_obsidian25.TFile) {
             toBeUpdated.add(linkedFile);
           }
         }
@@ -4821,7 +4813,7 @@ var MathIndexManager = class extends import_obsidian27.Component {
     for (const link of newPage.$links) {
       if (link.type === "block") {
         const linkedFile = this.vault.getAbstractFileByPath(link.path);
-        if (linkedFile instanceof import_obsidian27.TFile) {
+        if (linkedFile instanceof import_obsidian25.TFile) {
           toBeUpdated.add(linkedFile);
         }
       }
@@ -4831,6 +4823,8 @@ var MathIndexManager = class extends import_obsidian27.Component {
       update(this.app, fileToBeUpdated);
     });
     this.trigger("update", this.revision);
+    console.log("about to call MathLinks.update");
+    console.log("MathLinks.update called");
   }
   async updateLinkedOnDeltion(file) {
     const toBeUpdated = /* @__PURE__ */ new Set();
@@ -4839,7 +4833,7 @@ var MathIndexManager = class extends import_obsidian27.Component {
       for (const link of oldPage.$links) {
         if (link.type === "block") {
           const linkedFile = this.vault.getAbstractFileByPath(link.path);
-          if (linkedFile instanceof import_obsidian27.TFile) {
+          if (linkedFile instanceof import_obsidian25.TFile) {
             toBeUpdated.add(linkedFile);
           }
         }
@@ -4848,9 +4842,9 @@ var MathIndexManager = class extends import_obsidian27.Component {
     this.index.delete(file.path);
     toBeUpdated.forEach((fileToBeUpdated) => {
       this.index.updateNames(fileToBeUpdated);
-      update(this.app, fileToBeUpdated);
     });
     this.trigger("update", this.revision);
+    update(this.app);
   }
   on(evt, callback, context) {
     return this.events.on(evt, callback, context);
@@ -4868,7 +4862,7 @@ var MathIndexManager = class extends import_obsidian27.Component {
     this.events.trigger(evt, ...args);
   }
 };
-var _MathIndexInitializer = class _MathIndexInitializer extends import_obsidian27.Component {
+var _MathIndexInitializer = class _MathIndexInitializer extends import_obsidian25.Component {
   constructor(manager) {
     super();
     this.manager = manager;
@@ -4946,14 +4940,14 @@ _MathIndexInitializer.BATCH_SIZE = 8;
 var MathIndexInitializer = _MathIndexInitializer;
 
 // src/notice.ts
-var import_obsidian29 = require("obsidian");
-var DependencyNotificationModal = class extends import_obsidian29.Modal {
+var import_obsidian27 = require("obsidian");
+var DependencyNotificationModal = class extends import_obsidian27.Modal {
   constructor(plugin, dependenciesOK, v1) {
     super(plugin.app);
     this.plugin = plugin;
     this.dependenciesOK = dependenciesOK;
     this.v1 = v1;
-    this.component = new import_obsidian29.Component();
+    this.component = new import_obsidian27.Component();
     this.plugin.addChild(this.component);
   }
   async onOpen() {
@@ -4970,14 +4964,10 @@ var DependencyNotificationModal = class extends import_obsidian29.Modal {
       text: `${this.plugin.manifest.name} requires the following plugins to work properly. Disable it once, install/update & enable the dependencies and enable it again.`,
       attr: { style: "margin-bottom: 1em;" }
     });
-    for (const depenedency of [
-      { id: "mathlinks", name: "MathLinks" }
-      // { id: "dataview", name: "Dataview" }
-    ]) {
+    for (const depenedency of Object.values(this.plugin.dependencies)) {
       const depPlugin = this.app.plugins.getPlugin(depenedency.id);
-      const requiredVersion = this.plugin.dependencies[depenedency.id];
-      const isValid = depPlugin && !isPluginOlderThan(depPlugin, requiredVersion);
-      const setting = new import_obsidian29.Setting(this.contentEl).setName(depenedency.name).addExtraButton((button) => {
+      const isValid = depPlugin && !isPluginOlderThan(depPlugin, depenedency.version);
+      const setting = new import_obsidian27.Setting(this.contentEl).setName(depenedency.name).addExtraButton((button) => {
         button.setIcon(isValid ? "checkmark" : "cross");
         const el = button.extraSettingsEl;
         el.addClass("math-booster-dependency-validation");
@@ -4986,14 +4976,14 @@ var DependencyNotificationModal = class extends import_obsidian29.Modal {
       });
       setting.descEl.createDiv(
         {
-          text: `Required version: ${requiredVersion}+ / ` + (depPlugin ? `Currently installed: ${depPlugin.manifest.version}` : `Not installed or enabled`)
+          text: `Required version: ${depenedency.version}+ / ` + (depPlugin ? `Currently installed: ${depPlugin.manifest.version}` : `Not installed or enabled`)
         }
       );
     }
   }
   async showMigrationGuild() {
     this.contentEl.createEl("h3", { text: "Migration from version 1" });
-    import_obsidian29.MarkdownRenderer.render(
+    import_obsidian27.MarkdownRenderer.render(
       this.app,
       `Math Booster introduces a [new format for theorem callouts](https://ryotaushio.github.io/obsidian-math-booster/theorem-callouts/theorem-callouts.html). 
 
@@ -5002,14 +4992,14 @@ To fully enjoy Math Booster v2, click the button below to convert the old theore
       "",
       this.component
     );
-    new import_obsidian29.Setting(this.contentEl).addButton((button) => {
+    new import_obsidian27.Setting(this.contentEl).addButton((button) => {
       button.setButtonText("Convert").setCta().onClick(() => {
         this.close();
         new MigrationModal(this.plugin).open();
       });
     }).addButton((button) => button.setButtonText("Not now").onClick(() => this.close())).then((setting) => setting.settingEl.style.border = "none");
     const descEl = this.contentEl.createDiv({ cls: "math-booster-version-2-release-note-modal" });
-    await import_obsidian29.MarkdownRenderer.render(
+    await import_obsidian27.MarkdownRenderer.render(
       this.app,
       `### What's new in version 2
 
@@ -5065,11 +5055,11 @@ To fully enjoy Math Booster v2, click the button below to convert the old theore
     this.component.unload();
   }
 };
-var MigrationModal = class extends import_obsidian29.Modal {
+var MigrationModal = class extends import_obsidian27.Modal {
   constructor(plugin) {
     super(plugin.app);
     this.plugin = plugin;
-    this.component = new import_obsidian29.Component();
+    this.component = new import_obsidian27.Component();
     this.plugin.addChild(this.component);
   }
   async onOpen() {
@@ -5079,7 +5069,7 @@ var MigrationModal = class extends import_obsidian29.Modal {
     (_a = modalEl.querySelector(".modal-close-button")) == null ? void 0 : _a.remove();
     titleEl.setText("Convert theorem callouts' format from v1 to v2");
     const descEl = contentEl.createDiv();
-    await import_obsidian29.MarkdownRenderer.render(
+    await import_obsidian27.MarkdownRenderer.render(
       this.app,
       `
 In order to enjoy Math Booster v2, you need to convert the old theorem format:
@@ -5104,18 +5094,18 @@ to the new format:
     );
     descEl.querySelectorAll(".copy-code-button").forEach((el) => el.remove());
     await new Promise((resolve) => {
-      new import_obsidian29.Setting(contentEl).setName("Are you sure to proceed?").addButton((button) => {
+      new import_obsidian27.Setting(contentEl).setName("Are you sure to proceed?").addButton((button) => {
         button.setButtonText("Yes").setWarning().onClick(() => resolve());
       }).addButton((button) => {
         button.setButtonText("No").onClick(() => this.close());
       });
     });
     if (!this.app.metadataCache.initialized || !this.plugin.indexManager.initialized) {
-      new import_obsidian29.Notice("Obsidian is still indexing the vault. Try again after the cache is fully initialized.");
+      new import_obsidian27.Notice("Obsidian is still indexing the vault. Try again after the cache is fully initialized.");
       return;
     }
     contentEl.empty();
-    const waitForCacheRefresh = new import_obsidian29.Setting(contentEl).setName("Preparing the fresh cache...");
+    const waitForCacheRefresh = new import_obsidian27.Setting(contentEl).setName("Preparing the fresh cache...");
     await new Promise((resolve) => {
       waitForCacheRefresh.addProgressBar((bar) => {
         let progress = 0;
@@ -5129,7 +5119,7 @@ to the new format:
       });
     });
     waitForCacheRefresh.setName("Preparing the fresh cache... Done!");
-    const converting = new import_obsidian29.Setting(contentEl).setName("Converting...");
+    const converting = new import_obsidian27.Setting(contentEl).setName("Converting...");
     await new Promise((resolve) => {
       converting.addProgressBar(async (bar) => {
         const files = this.app.vault.getMarkdownFiles();
@@ -5144,7 +5134,7 @@ to the new format:
       });
     });
     converting.setName("Converting... Done!");
-    new import_obsidian29.Setting(contentEl).addButton((button) => {
+    new import_obsidian27.Setting(contentEl).addButton((button) => {
       button.setButtonText("Close").setCta().onClick(() => this.close());
     });
   }
@@ -5155,8 +5145,8 @@ to the new format:
 };
 
 // src/search/editor-suggest.ts
-var import_obsidian31 = require("obsidian");
-var LinkAutocomplete = class extends import_obsidian31.EditorSuggest {
+var import_obsidian29 = require("obsidian");
+var LinkAutocomplete = class extends import_obsidian29.EditorSuggest {
   /**
    * @param type The type of the block to search for. See: index/typings/markdown.ts
    */
@@ -5199,11 +5189,11 @@ var LinkAutocomplete = class extends import_obsidian31.EditorSuggest {
 };
 
 // src/search/core.ts
-var import_obsidian33 = require("obsidian");
+var import_obsidian31 = require("obsidian");
 
 // src/search/modal.ts
-var import_obsidian32 = require("obsidian");
-var MathSearchModal = class extends import_obsidian32.SuggestModal {
+var import_obsidian30 = require("obsidian");
+var MathSearchModal = class extends import_obsidian30.SuggestModal {
   constructor(plugin) {
     super(plugin.app);
     this.plugin = plugin;
@@ -5217,7 +5207,7 @@ var MathSearchModal = class extends import_obsidian32.SuggestModal {
     this.modalEl.insertBefore(this.topEl, this.modalEl.firstChild);
     this.inputEl.addClass("math-booster-search-input");
     this.limit = this.plugin.extraSettings.suggestNumber;
-    new import_obsidian32.Setting(this.topEl).setName("Query type").addDropdown((dropdown) => {
+    new import_obsidian30.Setting(this.topEl).setName("Query type").addDropdown((dropdown) => {
       dropdown.addOption("both", "Theorems and equations").addOption("theorem", "Theorems").addOption("equation", "Equations");
       dropdown.setValue(this.plugin.extraSettings.searchModalQueryType);
       dropdown.onChange((value) => {
@@ -5228,7 +5218,7 @@ var MathSearchModal = class extends import_obsidian32.SuggestModal {
         this.plugin.saveSettings();
       });
     });
-    new import_obsidian32.Setting(this.topEl).setName("Search range").addDropdown((dropdown) => {
+    new import_obsidian30.Setting(this.topEl).setName("Search range").addDropdown((dropdown) => {
       dropdown.addOption("vault", "Vault").addOption("recent", "Recent notes").addOption("active", "Active note").addOption("dataview", "Dataview query");
       dropdown.setValue(this.plugin.extraSettings.searchModalRange);
       dropdown.onChange((value) => {
@@ -5239,7 +5229,7 @@ var MathSearchModal = class extends import_obsidian32.SuggestModal {
         this.plugin.saveSettings();
       });
     });
-    this.dvQueryField = new import_obsidian32.Setting(this.topEl).setName("Dataview query").setDesc("Only LIST query is supported.").then((setting) => {
+    this.dvQueryField = new import_obsidian30.Setting(this.topEl).setName("Dataview query").setDesc("Only LIST query is supported.").then((setting) => {
       setting.controlEl.style.width = "60%";
     }).addTextArea((text) => {
       text.inputEl.addClass("math-booster-dv-query");
@@ -5284,7 +5274,7 @@ var MathSearchModal = class extends import_obsidian32.SuggestModal {
       this.core = new ActiveNoteSearchCore(this, this.queryType);
   }
   getContext() {
-    const view = this.app.workspace.getActiveViewOfType(import_obsidian32.MarkdownView);
+    const view = this.app.workspace.getActiveViewOfType(import_obsidian30.MarkdownView);
     if (!(view == null ? void 0 : view.file))
       return null;
     const start = view.editor.getCursor("from");
@@ -5325,7 +5315,7 @@ var MathSearchCore = class {
       }
       const item = this.parent.getSelectedItem();
       const file = this.app.vault.getAbstractFileByPath(item.$file);
-      if (!(file instanceof import_obsidian33.TFile))
+      if (!(file instanceof import_obsidian31.TFile))
         return;
       openFileAndSelectPosition(this.app, file, item.$pos, ...LEAF_OPTION_TO_ARGS[this.plugin.extraSettings.suggestLeafOption]);
       if (this.parent instanceof MathSearchModal)
@@ -5352,14 +5342,14 @@ var MathSearchCore = class {
     const ids = await this.getUnsortedSuggestions();
     const results = this.gradeSuggestions(ids, query);
     this.postProcessResults(results);
-    (0, import_obsidian33.sortSearchResults)(results);
+    (0, import_obsidian31.sortSearchResults)(results);
     return results.map((result) => result.block);
   }
   postProcessResults(results) {
   }
   gradeSuggestions(ids, query) {
     var _a;
-    const callback = (this.plugin.extraSettings.searchMethod == "Fuzzy" ? import_obsidian33.prepareFuzzySearch : import_obsidian33.prepareSimpleSearch)(query);
+    const callback = (this.plugin.extraSettings.searchMethod == "Fuzzy" ? import_obsidian31.prepareFuzzySearch : import_obsidian31.prepareSimpleSearch)(query);
     const results = [];
     for (const id of ids) {
       const block = this.index.load(id);
@@ -5368,7 +5358,7 @@ var MathSearchCore = class {
         text += ` ${block.$settings.type}`;
         if (this.plugin.extraSettings.searchLabel) {
           const file = this.app.vault.getAbstractFileByPath(block.$file);
-          if (file instanceof import_obsidian33.TFile) {
+          if (file instanceof import_obsidian31.TFile) {
             const resolvedSettings = resolveSettings(block.$settings, this.plugin, file);
             text += ` ${(_a = formatLabel(resolvedSettings)) != null ? _a : ""}`;
           }
@@ -5397,7 +5387,7 @@ var MathSearchCore = class {
     );
     if (block.$type === "equation") {
       if (this.plugin.extraSettings.renderMathInSuggestion) {
-        const mjxContainerEl = (0, import_obsidian33.renderMath)(block.$mathText, true);
+        const mjxContainerEl = (0, import_obsidian31.renderMath)(block.$mathText, true);
         baseEl.insertBefore(mjxContainerEl, smallEl);
       } else {
         const mathTextEl = createDiv({ text: block.$mathText });
@@ -5407,7 +5397,7 @@ var MathSearchCore = class {
   }
   selectSuggestion(item, evt) {
     this.selectSuggestionImpl(item, false);
-    (0, import_obsidian33.finishRenderMath)();
+    (0, import_obsidian31.finishRenderMath)();
   }
   async selectSuggestionImpl(block, insertNoteLink) {
     const context = this.parent.getContext();
@@ -5415,7 +5405,7 @@ var MathSearchCore = class {
       return;
     const fileContainingBlock = this.app.vault.getAbstractFileByPath(block.$file);
     const cache = this.app.metadataCache.getCache(block.$file);
-    if (!(fileContainingBlock instanceof import_obsidian33.TFile) || !cache)
+    if (!(fileContainingBlock instanceof import_obsidian31.TFile) || !cache)
       return;
     const { editor, start, end, file } = context;
     const settings = resolveSettings(void 0, this.plugin, file);
@@ -5444,7 +5434,7 @@ var MathSearchCore = class {
       success = true;
     }
     if (!success) {
-      new import_obsidian33.Notice(`${this.plugin.manifest.name}: Failed to read cache. Retry again later.`, 5e3);
+      new import_obsidian31.Notice(`${this.plugin.manifest.name}: Failed to read cache. Retry again later.`, 5e3);
     }
   }
 };
@@ -5529,9 +5519,12 @@ var DataviewQuerySearchCore = class extends PartialSearchCore {
 };
 
 // src/patches/link-completion.ts
-var import_obsidian35 = require("obsidian");
+var import_obsidian33 = require("obsidian");
 var patchLinkCompletion = (plugin) => {
-  const prototype = plugin.app.workspace.editorSuggest.suggests[0].constructor.prototype;
+  const suggest = plugin.app.workspace.editorSuggest.suggests[0];
+  if (!Object.hasOwn(suggest, "suggestManager"))
+    new import_obsidian33.Notice(`Failed to patch Obsidian's built-in link completion. Please reload ${plugin.manifest.name}.`);
+  const prototype = suggest.constructor.prototype;
   plugin.register(around(prototype, {
     renderSuggestion(old) {
       return function(item, el) {
@@ -5570,7 +5563,7 @@ var patchLinkCompletion = (plugin) => {
         } else if (plugin.extraSettings.renderEquationinBuiltin && item.type === "block" && item.node.type === "math") {
           renderInSuggestionTitleEl(el, (suggestionTitleEl) => {
             suggestionTitleEl.replaceChildren();
-            suggestionTitleEl.appendChild((0, import_obsidian35.renderMath)(item.node.value, true));
+            suggestionTitleEl.appendChild((0, import_obsidian33.renderMath)(item.node.value, true));
           });
           return;
         }
@@ -5586,12 +5579,11 @@ function renderInSuggestionTitleEl(el, cb) {
 
 // src/main.ts
 var VAULT_ROOT = "/";
-var MathBooster3 = class extends import_obsidian36.Plugin {
+var MathBooster3 = class extends import_obsidian34.Plugin {
   constructor() {
     super(...arguments);
     this.dependencies = {
-      "mathlinks": "0.5.2"
-      // "dataview": "0.5.56",
+      "mathlinks": { id: "mathlinks", name: "MathLinks", version: "0.5.3" }
     };
   }
   async onload() {
@@ -5621,7 +5613,7 @@ var MathBooster3 = class extends import_obsidian36.Plugin {
       // this.app.metadataCache.on("math-booster:local-settings-updated", async (file) => {
       this.indexManager.on("local-settings-updated", async (file) => {
         this.app.workspace.iterateRootLeaves((leaf) => {
-          if (leaf.view instanceof import_obsidian36.MarkdownView) {
+          if (leaf.view instanceof import_obsidian34.MarkdownView) {
             this.setProfileTagAsCSSClass(leaf.view);
           }
         });
@@ -5630,7 +5622,7 @@ var MathBooster3 = class extends import_obsidian36.Plugin {
     this.registerEvent(
       this.indexManager.on("global-settings-updated", async () => {
         this.app.workspace.iterateRootLeaves((leaf) => {
-          if (leaf.view instanceof import_obsidian36.MarkdownView) {
+          if (leaf.view instanceof import_obsidian34.MarkdownView) {
             this.setProfileTagAsCSSClass(leaf.view);
           }
         });
@@ -5638,14 +5630,14 @@ var MathBooster3 = class extends import_obsidian36.Plugin {
     );
     this.app.workspace.onLayoutReady(() => {
       this.app.workspace.iterateRootLeaves((leaf) => {
-        if (leaf.view instanceof import_obsidian36.MarkdownView) {
+        if (leaf.view instanceof import_obsidian34.MarkdownView) {
           this.setProfileTagAsCSSClass(leaf.view);
         }
       });
     });
     this.registerEvent(
       this.app.workspace.on("active-leaf-change", (leaf) => {
-        if ((leaf == null ? void 0 : leaf.view) instanceof import_obsidian36.MarkdownView) {
+        if ((leaf == null ? void 0 : leaf.view) instanceof import_obsidian34.MarkdownView) {
           this.setProfileTagAsCSSClass(leaf.view);
         }
       })
@@ -5839,7 +5831,7 @@ var MathBooster3 = class extends import_obsidian36.Plugin {
     }
     const depPlugin = this.app.plugins.getPlugin(id);
     if (depPlugin) {
-      return !isPluginOlderThan(depPlugin, this.dependencies[id]);
+      return !isPluginOlderThan(depPlugin, this.dependencies[id].version);
     }
     return false;
   }
@@ -5917,7 +5909,7 @@ var MathBooster3 = class extends import_obsidian36.Plugin {
       id: "open-local-settings-for-current-note",
       name: "Open local settings for the current note",
       callback: () => {
-        const view = this.app.workspace.getActiveViewOfType(import_obsidian36.MarkdownView);
+        const view = this.app.workspace.getActiveViewOfType(import_obsidian34.MarkdownView);
         if (view == null ? void 0 : view.file) {
           new ContextSettingModal(this.app, this, view.file).open();
         }
@@ -5949,18 +5941,9 @@ var MathBooster3 = class extends import_obsidian36.Plugin {
     setTimeout(async () => {
       for (const leaf of this.app.workspace.getLeavesOfType("markdown")) {
         const view = leaf.view;
+        const state = view.getEphemeralState();
         view.previewMode.rerender(true);
-        if (view.getMode() === "source") {
-          const state = leaf.getViewState();
-          const focus = view === this.app.workspace.activeEditor;
-          state.state.mode = "preview";
-          leaf.setViewState(state, { focus });
-          setTimeout(() => {
-            const state2 = leaf.getViewState();
-            state2.state.mode = "source";
-            leaf.setViewState(state2, { focus });
-          }, 400);
-        }
+        view.setEphemeralState(state);
       }
     }, 800);
   }

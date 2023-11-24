@@ -42,3 +42,4 @@ Note that only [LIST queries](https://blacksmithgu.github.io/obsidian-dataview/q
 >   ```
 >   LIST WHERE file.cday >= date("2023-11-01")
 >   ```
+

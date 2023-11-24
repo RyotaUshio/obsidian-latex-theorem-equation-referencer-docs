@@ -1,16 +1,20 @@
 # Proof environment
 
-> [!remark|*]
+> [!remark]
 > - _This is still an experimental feature._
 > - See also [this post](https://forum.obsidian.md/t/new-plugin-math-booster-take-mathematical-notes-just-as-in-latex/65089/3?u=ush) on the forum for more information.
 
 Math Booster supports $\LaTeX$-like proof environments.
 
-```markdown
+```
 `\begin{proof}`
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, ...
 `\end{proof}`
 ```
+
+`BEGINPROOF`
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, ...
+`ENDPROOF`
 
 - You can use any string you like, `PROOF`/`QED` for example, instead of `\begin{proof}`/`\end{proof}`. See [[#Settings & styling]].
 - It is recommended to [assign a hotkey](https://help.obsidian.md/Customization/Custom+hotkeys) to the command `Insert proof`.
@@ -21,21 +25,45 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, ...
 Use the following syntax to print custom text. 
 Any inline markdown syntax can be used, but inline formulas will render with flickering in the live preview.
 
-```markdown
+```
 `\begin{proof}[Solution.]`
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, ...
 `\end{proof}`
 ```
 
+`BEGINPROOF[Solution.]`
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, ...
+`ENDPROOF`
+
 ### Linked proofs
 
-The following will be printed as "Proof of Theorem 1." by default.
+Suppose that you have a theorem like below and it has a [block ID](https://help.obsidian.md/Linking+notes+and+files/Internal+links#Link%20to%20a%20block%20in%20a%20note) `123456`.
 
-```markdown
-`\begin{proof}`@[[(link to Theorem 1)]]
+
+> [!theorem] Title
+> Content
+
+^123456
+
+The following will be printed as "*Proof of Theorem 2 (Title).*" by default.
+
+```
+`\begin{proof}`@[[#^123456]]
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, ...
 `\end{proof}`
 ```
+
+`BEGINPROOF`@[[#^123456]]
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, ...
+`ENDPROOF`
+
+> [!remark]
+> Alternatively, you can just write:
+> ```
+> \begin{proof}[Proof of [[#^123456]].]
+> ```
+> For now, I prefer this due to its potentially higher potability. 
+> The strength of the `@` syntax is it's rendered dynamically depending on the current [[Profiles|profile]].
 
 ## Settings & styling
 
