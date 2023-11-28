@@ -99,6 +99,42 @@ It is also possible to explicitly specify the theorem number by yourself. It's u
 > [!def|A.1] Title
 > Content
 
+
+### Latex Suite snippets
+
+You can insert theorem callouts via the following [Latex Suite](https://github.com/artisticat1/obsidian-latex-suite) snippets.
+
+For example, type `def`+`Tab` to insert a definition callout with [tabstops](https://github.com/artisticat1/obsidian-latex-suite/blob/main/DOCS.md#tabstops).
+
+```
+{trigger: "axm", replacement: "> [!axiom] $1\n> $2", options: "t"},
+    {trigger: "def", replacement: "> [!definition] $1\n> $2", options: "t"},
+    {trigger: "lem", replacement: "> [!lemma] $1\n> $2", options: "t"},
+    {trigger: "prp", replacement: "> [!proposition] $1\n> $2", options: "t"},
+    {trigger: "thm", replacement: "> [!theorem] $1\n> $2", options: "t"},
+    {trigger: "cor", replacement: "> [!corollary] $1\n> $2", options: "t"},
+    {trigger: "clm", replacement: "> [!claim] $1\n> $2", options: "t"},
+    {trigger: "asm", replacement: "> [!assumption] $1\n> $2", options: "t"},
+    {trigger: "exm", replacement: "> [!example] $1\n> $2", options: "t"},
+    {trigger: "exr", replacement: "> [!exercise] $1\n> $2", options: "t"},
+    {trigger: "cnj", replacement: "> [!conjecture] $1\n> $2", options: "t"},
+    {trigger: "hyp", replacement: "> [!hypothesis] $1\n> $2", options: "t"},
+    {trigger: "rmk", replacement: "> [!remark] $1\n> $2", options: "t"},
+    {trigger: "axiom", replacement: "> [!axiom] $1\n> $2", options: "t"},
+    {trigger: "definition", replacement: "> [!definition] $1\n> $2", options: "t"},
+    {trigger: "lemma", replacement: "> [!lemma] $1\n> $2", options: "t"},
+    {trigger: "proposition", replacement: "> [!proposition] $1\n> $2", options: "t"},
+    {trigger: "theorem", replacement: "> [!theorem] $1\n> $2", options: "t"},
+    {trigger: "corollary", replacement: "> [!corollary] $1\n> $2", options: "t"},
+    {trigger: "claim", replacement: "> [!claim] $1\n> $2", options: "t"},
+    {trigger: "assumption", replacement: "> [!assumption] $1\n> $2", options: "t"},
+    {trigger: "example", replacement: "> [!example] $1\n> $2", options: "t"},
+    {trigger: "exercise", replacement: "> [!exercise] $1\n> $2", options: "t"},
+    {trigger: "conjecture", replacement: "> [!conjecture] $1\n> $2", options: "t"},
+    {trigger: "hypothesis", replacement: "> [!hypothesis] $1\n> $2", options: "t"},
+    {trigger: "remark", replacement: "> [!remark] $1\n> $2", options: "t"},
+```
+
 ### Insert a theorem callout via GUI
 
 If you prefer, you can run the `Insert theorem callout` command to insert a theorem callout via a popout like this.
