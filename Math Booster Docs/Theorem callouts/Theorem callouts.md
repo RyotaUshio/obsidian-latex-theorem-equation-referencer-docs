@@ -107,7 +107,7 @@ You can insert theorem callouts via the following [Latex Suite](https://github.c
 For example, type `def`+`Tab` to insert a definition callout with [tabstops](https://github.com/artisticat1/obsidian-latex-suite/blob/main/DOCS.md#tabstops).
 
 ```
-{trigger: "axm", replacement: "> [!axiom] $1\n> $2", options: "t"},
+    {trigger: "axm", replacement: "> [!axiom] $1\n> $2", options: "t"},
     {trigger: "def", replacement: "> [!definition] $1\n> $2", options: "t"},
     {trigger: "lem", replacement: "> [!lemma] $1\n> $2", options: "t"},
     {trigger: "prp", replacement: "> [!proposition] $1\n> $2", options: "t"},
