@@ -1,6 +1,6 @@
 # Math Booster version 2
 
-[Math Booster](https://github.com/RyotaUshio/obsidian-math-booster) is an [Obsidian](https://obsidian.md) plugin that enhances your mathematical note-taking experience, turning your Obsidian into ***LaTeX on steroids***.
+[Math Booster](https://github.com/RyotaUshio/obsidian-math-booster) is an [Obsidian](https://obsidian.md) plugin that provides a powerful indexing & referencing system for theorems & equations in your vault and brings $\LaTeX$-like workflow into Obsidian.
 
 > [!remark] Major version update
 > Using Math Booster since version 1? See [[Migration from Version 1]].
@@ -9,14 +9,17 @@
 
 - [[Theorem callouts|Theorem environments]]
 - [[Equations|Automatic equation numbering]]
-- [[Rendering equations inside callouts]]
-- [[Multi-line equation support inside blockquotes]]
 - [[Clever referencing]]
 - [[Search & link autocomplete]]
 	- [[Enhancing Obsidian's built-in link autocomplete]]
 	- [[Custom link autocomplete]]
 	- [[Search modal]]
 - [[Proof environment|Proof environment (experimental)]]
+
+> The following features will be removed from Math Booster in the near future, and instead provided by my another plugin [Better Math in Callouts & Blockquotes](https://github.com/RyotaUshio/obsidian-math-in-callout).
+> - [[Rendering equations inside callouts]]
+> - [[Multi-line equation support inside blockquotes]]
+
 
 ## Installation
 

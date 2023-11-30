@@ -53,7 +53,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, ...
 `\end{proof}`
 ```
 
-`BEGINPROOF`@[[#^123456]]
+`BEGINPROOF`@[[Theorem callouts#^f58c13]]
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, ...
 `ENDPROOF`
 
