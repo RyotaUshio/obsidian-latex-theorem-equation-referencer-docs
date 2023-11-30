@@ -2,7 +2,7 @@
   "newFileLocation": "folder",
   "newFileFolderPath": "Inbox",
   "alwaysUpdateLinks": true,
-  "attachmentFolderPath": "./Assets",
+  "attachmentFolderPath": "Assets",
   "showUnsupportedFiles": true,
   "strictLineBreaks": false,
   "livePreview": true,

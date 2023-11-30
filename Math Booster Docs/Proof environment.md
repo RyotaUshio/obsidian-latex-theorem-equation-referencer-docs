@@ -17,8 +17,8 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, ...
 `ENDPROOF`
 
 - You can use any string you like, `PROOF`/`QED` for example, instead of `\begin{proof}`/`\end{proof}`. See [[#Settings & styling]].
-- It is recommended to [assign a hotkey](https://help.obsidian.md/Customization/Custom+hotkeys) to the command `Insert proof`.
-- Proofs can be folded (collapsed) in Live Preview.
+- To quickly insert a proof, I recommend using a [[#Latex Suite snippet|Latex Suite snippet]] or [assigning a hotkey](https://help.obsidian.md/Customization/Custom+hotkeys) to the command `Insert proof`.
+%%- Proofs can be folded (collapsed) in Live Preview.%%
 
 ### Custom texts
 
@@ -73,3 +73,11 @@ Beginning/ending of proofs are given the following CSS classes.
 
 - `.math-booster-begin-proof`/`.math-booster-end-proof`
 - `.math-booster-begin-proof-{tag}`/`.math-booster-end-proof-{tag}`: `{tag}` is each tag associated with the profile applying to the note.
+
+## Latex Suite snippet
+
+Using the following [Latex Suite](https://github.com/artisticat1/obsidian-latex-suite) snippet, you can quickly insert a proof by just typing `proof`+`Tab`.
+
+```js
+    { trigger: "proof", replacement: "`\\begin{proof}`\n$0\n`\\end{proof}`", options: "t" }
+```

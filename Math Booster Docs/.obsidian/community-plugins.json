@@ -20,7 +20,6 @@
   "auto-card-link",
   "obsidian-auto-link-title",
   "better-fn",
-  "better-search-views",
   "calendar",
   "cmdr",
   "obsidian-copy-block-link",
@@ -57,7 +56,5 @@
   "math-booster",
   "dataview",
   "obsidian-hover-editor",
-  "table-editor-obsidian",
-  "obsidian-emoji-toolbar",
-  "better-link-autocompletion"
+  "obsidian-emoji-toolbar"
 ]

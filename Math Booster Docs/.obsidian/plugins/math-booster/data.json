@@ -15,6 +15,7 @@
       "refFormat": "[type] [number] ([title])",
       "noteMathLinkFormat": "[title] if title exists, [type] [number] otherwise",
       "ignoreMainTheoremCalloutWithoutTitle": false,
+      "numberOnlyReferencedEquations": true,
       "inferEqNumberPrefix": true,
       "inferEqNumberPrefixFromProperty": "",
       "inferEqNumberPrefixRegExp": "^[0-9]+(\\.[0-9]+)*",
@@ -44,7 +45,8 @@
   },
   "extraSettings": {
     "foldDefault": "",
-    "noteTitleInLink": true,
+    "noteTitleInTheoremLink": true,
+    "noteTitleInEquationLink": true,
     "profiles": {
       "English": {
         "id": "English",

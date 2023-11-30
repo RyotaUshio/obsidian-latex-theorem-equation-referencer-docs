@@ -1,19 +1,12 @@
-# Custom link completion
+# Custom link autocomplete
 
-Math Booster lets you insert links to theorems or equations with ease.
-
-In the editor, type `\ref` (by default). Then, live suggestions for all theorem callouts & equation blocks in the entire vault show up.
+In the editor, type `\ref` (by default). Then, live suggestions for all theorem callouts & equation blocks in the entire vault show up. 
 
 - `Enter`: insert a link to the selected item.
 - `Shift`+`Enter`: insert a link to the note containing the selected item.
 - `Cmd`+`Enter` on Mac/`Ctrl`+`Enter` on Windows: jump to the selected item by pressing.
 
 Use `\tref` or `\eqref` (by default) instead of `\ref` to suggest only theorems or only equations.
-
-
-> [!remark] the Better Link Autocompletion plugin
-> I also wrote another plugin that renders equation inside Obsidian's built-in link autocompletion.
-> Check it out here: https://github.com/RyotaUshio/obsidian-better-link-autocompletion
 
 ## Filter files to be searched
 
@@ -24,7 +17,7 @@ Use `\tref` or `\eqref` (by default) instead of `\ref` to suggest only theorems 
 > You can change the trigger strings (e.g. `\ref`) to whatever you like in the plugin settings.
 
 > [!remark]
-> There are $3 \times 3 = 9$ variants of link auto-completion. It is recommended to turn off unnecessary ones in the plugin setting to improve performance.
+> There are $3 \times 3 = 9$ variants of custom autocomplete. It is recommended to turn off unnecessary ones in the plugin setting to improve performance.
 
 ## Available search keys
 

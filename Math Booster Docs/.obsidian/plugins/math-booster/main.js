@@ -80,7 +80,7 @@ var patchPagePreview = (plugin) => {
 };
 
 // src/main.ts
-var import_obsidian34 = require("obsidian");
+var import_obsidian36 = require("obsidian");
 
 // node_modules/obsidian-mathlinks/lib/api/provider.js
 var import_obsidian2 = require("obsidian");
@@ -585,6 +585,7 @@ var DEFAULT_SETTINGS = {
   refFormat: "[type] [number] ([title])",
   noteMathLinkFormat: "[title] if title exists, [type] [number] otherwise",
   ignoreMainTheoremCalloutWithoutTitle: false,
+  numberOnlyReferencedEquations: true,
   inferEqNumberPrefix: true,
   inferEqNumberPrefixFromProperty: "",
   inferEqNumberPrefixRegExp: "^[0-9]+(\\.[0-9]+)*",
@@ -604,7 +605,8 @@ var DEFAULT_SETTINGS = {
 };
 var DEFAULT_EXTRA_SETTINGS = {
   foldDefault: "",
-  noteTitleInLink: true,
+  noteTitleInTheoremLink: true,
+  noteTitleInEquationLink: true,
   profiles: DEFAULT_PROFILES,
   showTheoremTitleinBuiltin: true,
   renderEquationinBuiltin: true,
@@ -699,6 +701,13 @@ function rangeSetSome(set, predicate) {
 function hasOverlap(range1, range2) {
   return range1.from <= range2.to && range2.from <= range1.to;
 }
+function rangesHaveOverlap(ranges, from, to) {
+  for (const range of ranges) {
+    if (range.from <= to && range.to >= from)
+      return true;
+  }
+  return false;
+}
 
 // src/utils/obsidian.ts
 function iterDescendantFiles(file, callback) {
@@ -742,6 +751,10 @@ function isEqualToOrChildOf(file1, file2) {
       ancestor = ancestor.parent;
     }
   }
+}
+function getFile(app) {
+  var _a;
+  return (_a = app.workspace.getActiveFile()) != null ? _a : app.vault.getRoot();
 }
 function getSectionCacheFromPos(cache, pos, type) {
   if (cache.sections) {
@@ -1264,6 +1277,7 @@ var MathContextSettingsHelper = class extends SettingsHelper {
     );
     this.addToggleSetting("ignoreMainTheoremCalloutWithoutTitle", 'Ignore a "main" theorem callout without its own title');
     this.addHeading("Equations - numbering", ["equation-heading"]);
+    this.addToggleSetting("numberOnlyReferencedEquations", "Number only referenced equations");
     this.addToggleSetting(
       "inferEqNumberPrefix",
       "Infer prefix from note title or properties",
@@ -1304,7 +1318,8 @@ var ExtraSettingsHelper = class extends SettingsHelper {
       },
       this.defaultSettings.foldDefault
     );
-    this.addToggleSetting("noteTitleInLink", "Show note title at link's head", 'If turned on, a link to "Theorem 1" will look like "Note title > Theorem 1." The same applies to equations.');
+    this.addToggleSetting("noteTitleInTheoremLink", "Show the note title at the head of a link to a theorem", 'If turned on, a link to "Theorem 1" will look like "Note title > Theorem 1".');
+    this.addToggleSetting("noteTitleInEquationLink", "Show the note title at the head of a link to an equation", 'If turned on, a link to "Eq.(1)" will look like "Note title > Eq.(1)".');
     this.addToggleSetting("excludeExampleCallout", `Don't treat "> [!example]" as a theorem callout`, `If turned on, a callout of the form "> [!example]" will be treated as Obsidian's built-in "Example" callout, and you will need to type "> [!exm]" instead to insert a theorem callout of "Example" type.`);
     this.addToggleSetting("showTheoremCalloutEditButton", "Show an edit button on a theorem callout");
     this.addToggleSetting("setOnlyTheoremAsMain", "If a note has only one theorem callout, automatically set it as main", `Regardless of this setting, putting "%% main %%" or "%% main: true %%" in a theorem callout will set it as main one of the note, which means any link to that note will be displayed with the theorem's title. Enabling this option implicitly sets a theorem callout as main when it's the only one in the note.`);
@@ -2346,6 +2361,15 @@ function isTheoremCallout(plugin, type) {
     return false;
   return THEOREM_LIKE_ENV_IDs.includes(type) || THEOREM_LIKE_ENV_PREFIXES.includes(type) || type === "math";
 }
+function insertProof(plugin, editor, context) {
+  var _a;
+  const settings = resolveSettings(void 0, plugin, (_a = context.file) != null ? _a : getFile(plugin.app));
+  const cursor = editor.getCursor();
+  editor.replaceRange(`\`${settings.beginProof}\`
+
+\`${settings.endProof}\``, cursor);
+  editor.setCursor({ line: cursor.line + 1, ch: 0 });
+}
 
 // src/settings/modals.ts
 var MathSettingModal = class extends import_obsidian12.Modal {
@@ -2618,9 +2642,13 @@ var MathSettingTab = class extends import_obsidian14.PluginSettingTab {
       extraHelper.settingRefs.setLabelInModal.settingEl,
       globalHelper.settingRefs.labelPrefix.settingEl
     );
-    this.containerEl.insertBefore(
-      extraHelper.settingRefs.noteTitleInLink.settingEl,
-      globalHelper.settingRefs.noteMathLinkFormat.settingEl
+    this.containerEl.insertAfter(
+      extraHelper.settingRefs.noteTitleInTheoremLink.settingEl,
+      globalHelper.settingRefs.refFormat.settingEl
+    );
+    this.containerEl.insertAfter(
+      extraHelper.settingRefs.noteTitleInEquationLink.settingEl,
+      globalHelper.settingRefs.eqRefSuffix.settingEl
     );
     this.containerEl.insertBefore(
       globalHelper.settingRefs.insertSpace.settingEl,
@@ -2650,6 +2678,7 @@ var MathSettingTab = class extends import_obsidian14.PluginSettingTab {
 var CleverefProvider = class extends Provider {
   constructor(mathLinks, plugin) {
     super(mathLinks);
+    this.plugin = plugin;
     this.app = plugin.app;
     this.index = plugin.indexManager.index;
   }
@@ -2669,11 +2698,10 @@ var CleverefProvider = class extends Provider {
     if (targetSubpathResult.type === "block") {
       const block = page.$blocks.get(targetSubpathResult.block.id);
       if (MathBoosterBlock.isMathBoosterBlock(block)) {
-        console.log({ block, refName: block.$refName });
         if (block.$display)
-          return path ? processedPath + " > " + block.$display : block.$display;
+          return path && this.shouldShowNoteTitle(block) ? processedPath + " > " + block.$display : block.$display;
         if (block.$refName)
-          return path ? processedPath + " > " + block.$refName : block.$refName;
+          return path && this.shouldShowNoteTitle(block) ? processedPath + " > " + block.$refName : block.$refName;
       }
     } else {
       if (path && page.$refName) {
@@ -2681,6 +2709,13 @@ var CleverefProvider = class extends Provider {
       }
     }
     return null;
+  }
+  shouldShowNoteTitle(block) {
+    if (TheoremCalloutBlock.isTheoremCalloutBlock(block))
+      return this.plugin.extraSettings.noteTitleInTheoremLink;
+    if (EquationBlock.isEquationBlock(block))
+      return this.plugin.extraSettings.noteTitleInEquationLink;
+    return true;
   }
 };
 
@@ -2783,7 +2818,8 @@ function parseLatexComment(line) {
 
 // src/theorem-callouts/renderer.ts
 var createTheoremCalloutPostProcessor = (plugin) => async (element, context) => {
-  const file = plugin.app.vault.getAbstractFileByPath(context.sourcePath);
+  var _a;
+  const file = (_a = plugin.app.vault.getAbstractFileByPath(context.sourcePath)) != null ? _a : plugin.app.workspace.getActiveFile();
   if (!(file instanceof import_obsidian16.TFile))
     return null;
   const pdf = isPdfExport(element);
@@ -3232,8 +3268,8 @@ var createEquationNumberProcessor = (plugin) => async (el, ctx) => {
 function preprocessForPdfExport(plugin, el, ctx) {
   try {
     const topLevelMathDivs = el.querySelectorAll(':scope > div.math.math-block > mjx-container.MathJax[display="true"]');
-    const page = plugin.indexManager.index.load(ctx.sourcePath);
-    if (!MarkdownPage.isMarkdownPage(page)) {
+    const page = plugin.indexManager.index.getMarkdownPage(ctx.sourcePath);
+    if (!page) {
       new import_obsidian19.Notice(`${plugin.manifest.name}: Failed to fetch the metadata for PDF export; equation numbers will not be displayed in the exported PDF.`);
       return;
     }
@@ -3243,8 +3279,8 @@ function preprocessForPdfExport(plugin, el, ctx) {
         if (!EquationBlock.isEquationBlock(block))
           continue;
         const div = topLevelMathDivs[equationIndex++];
-        if (block.$printName && block.$blockId)
-          div.setAttribute("data-equation-block-id", block.$blockId);
+        if (block.$printName)
+          div.setAttribute("data-equation-id", block.$id);
       }
     }
     if (topLevelMathDivs.length != equationIndex) {
@@ -3276,20 +3312,10 @@ var EquationNumberRenderer = class extends import_obsidian19.MarkdownRenderChild
   getEquationCache(lineOffset = 0) {
     var _a;
     const info = this.context.getSectionInfo(this.containerEl);
-    const page = this.index.load(this.file.path);
-    if (!info || !MarkdownPage.isMarkdownPage(page))
+    const page = this.index.getMarkdownPage(this.file.path);
+    if (!info || !page)
       return null;
     const block = (_a = page.getBlockByLineNumber(info.lineStart + lineOffset)) != null ? _a : page.getBlockByLineNumber(info.lineEnd + lineOffset);
-    const id = block == null ? void 0 : block.$blockId;
-    if (id)
-      return this.getEquationCacheFromId(id);
-    return null;
-  }
-  getEquationCacheFromId(id) {
-    const page = this.plugin.indexManager.index.load(this.file.path);
-    if (!MarkdownPage.isMarkdownPage(page))
-      return null;
-    const block = page.$blocks.get(id);
     if (EquationBlock.isEquationBlock(block))
       return block;
     return null;
@@ -3301,8 +3327,8 @@ var EquationNumberRenderer = class extends import_obsidian19.MarkdownRenderChild
     (0, import_obsidian19.finishRenderMath)();
   }
   update() {
-    const id = this.containerEl.getAttribute("data-equation-block-id");
-    const equation = id ? this.getEquationCacheFromId(id) : this.getEquationCacheCaringHoverAndEmbed();
+    const id = this.containerEl.getAttribute("data-equation-id");
+    const equation = id ? this.index.getEquationBlock(id) : this.getEquationCacheCaringHoverAndEmbed();
     if (!equation)
       return;
     const settings = resolveSettings(void 0, this.plugin, this.file);
@@ -3424,7 +3450,7 @@ function createEquationNumberPlugin(plugin) {
 }
 
 // src/render-math-in-callouts.ts
-var import_obsidian22 = require("obsidian");
+var import_obsidian23 = require("obsidian");
 var import_state3 = require("@codemirror/state");
 var import_view3 = require("@codemirror/view");
 var import_language2 = require("@codemirror/language");
@@ -3432,6 +3458,7 @@ var import_language2 = require("@codemirror/language");
 // src/theorem-callouts/state-field.ts
 var import_state2 = require("@codemirror/state");
 var import_language = require("@codemirror/language");
+var import_obsidian22 = require("obsidian");
 var CALLOUT = /HyperMD-callout_HyperMD-quote_HyperMD-quote-([1-9][0-9]*)/;
 var TheoremCalloutInfo = class extends import_state2.RangeValue {
   constructor(index) {
@@ -3441,10 +3468,14 @@ var TheoremCalloutInfo = class extends import_state2.RangeValue {
 };
 var createTheoremCalloutsField = (plugin) => import_state2.StateField.define({
   create(state) {
+    if (!state.field(import_obsidian22.editorInfoField).file)
+      return import_state2.RangeSet.empty;
     const ranges = getTheoremCalloutInfos(plugin, state, state.doc, 0, 0);
     return import_state2.RangeSet.of(ranges);
   },
   update(value, tr) {
+    if (!tr.state.field(import_obsidian22.editorInfoField).file)
+      return import_state2.RangeSet.empty;
     if (!tr.docChanged)
       return value;
     let minChangedPosition = tr.newDoc.length - 1;
@@ -3528,7 +3559,7 @@ var MathPreviewWidget = class extends import_view3.WidgetType {
         }
       });
       cmEmbedBlockEl.appendChild(this.info.mathEl);
-      const editButton = new import_obsidian22.ExtraButtonComponent(cmEmbedBlockEl).setIcon("code-2").setTooltip("Edit this block");
+      const editButton = new import_obsidian23.ExtraButtonComponent(cmEmbedBlockEl).setIcon("code-2").setTooltip("Edit this block");
       editButton.extraSettingsEl.addEventListener("click", (ev) => {
         ev.stopPropagation();
         view.dispatch({ selection: { anchor: this.info.from + 2, head: this.info.to - 2 } });
@@ -3556,7 +3587,7 @@ var MathInfo = class extends import_state3.RangeValue {
     this.render();
   }
   async render() {
-    this.mathEl = (0, import_obsidian22.renderMath)(this.mathText, this.display);
+    this.mathEl = (0, import_obsidian23.renderMath)(this.mathText, this.display);
   }
   toWidget() {
     return new MathPreviewWidget(this);
@@ -3900,291 +3931,6 @@ var displayMathPreviewForQuote = import_view3.ViewPlugin.fromClass(
   }
 );
 
-// src/proof.ts
-var import_obsidian23 = require("obsidian");
-var import_state4 = require("@codemirror/state");
-var import_view4 = require("@codemirror/view");
-var import_language3 = require("@codemirror/language");
-var INLINE_CODE = "inline-code";
-var LINK_BEGIN = "formatting-link_formatting-link-start";
-var LINK = "hmd-internal-link";
-var LINK_END = "formatting-link_formatting-link-end";
-function makeProofClasses(which, profile) {
-  return [
-    "math-booster-" + which + "-proof",
-    ...profile.meta.tags.map((tag) => "math-booster-" + which + "-proof-" + tag)
-  ];
-}
-function makeProofElement(which, profile) {
-  return createSpan({
-    text: profile.body.proof[which],
-    cls: makeProofClasses(which, profile)
-  });
-}
-function parseAtSignLink(codeEl) {
-  const next = codeEl.nextSibling;
-  const afterNext = next == null ? void 0 : next.nextSibling;
-  const afterAfterNext = afterNext == null ? void 0 : afterNext.nextSibling;
-  if (afterNext) {
-    if (next.nodeType == Node.TEXT_NODE && next.textContent == "@" && afterNext instanceof HTMLElement && afterNext.matches("a.original-internal-link") && afterAfterNext instanceof HTMLElement && afterAfterNext.matches("a.mathLink-internal-link")) {
-      return { atSign: next, links: [afterNext, afterAfterNext] };
-    }
-  }
-}
-var ProofRenderer = class extends import_obsidian23.MarkdownRenderChild {
-  constructor(app, plugin, containerEl, which, file, display) {
-    super(containerEl);
-    this.app = app;
-    this.plugin = plugin;
-    this.which = which;
-    this.file = file;
-    this.display = display;
-    this.atSignParseResult = parseAtSignLink(this.containerEl);
-  }
-  onload() {
-    this.update();
-    this.registerEvent(
-      this.plugin.indexManager.on("local-settings-updated", (file) => {
-        if (file == this.file) {
-          this.update();
-        }
-      })
-    );
-    this.registerEvent(
-      this.plugin.indexManager.on("global-settings-updated", () => {
-        this.update();
-      })
-    );
-  }
-  update() {
-    const settings = resolveSettings(void 0, this.plugin, this.file);
-    const profile = this.plugin.extraSettings.profiles[settings.profile];
-    if (this.atSignParseResult) {
-      const { atSign, links } = this.atSignParseResult;
-      const newEl2 = createSpan({ cls: makeProofClasses(this.which, profile) });
-      newEl2.replaceChildren(profile.body.proof.linkedBeginPrefix, ...links, profile.body.proof.linkedBeginSuffix);
-      this.containerEl.replaceWith(newEl2);
-      this.containerEl = newEl2;
-      atSign.textContent = "";
-      return;
-    }
-    if (this.display) {
-      this.renderDisplay(profile);
-      return;
-    }
-    const newEl = makeProofElement(this.which, profile);
-    this.containerEl.replaceWith(newEl);
-    this.containerEl = newEl;
-  }
-  async renderDisplay(profile) {
-    if (this.display) {
-      const children = await renderMarkdown(this.display, this.file.path, this.plugin);
-      if (children) {
-        const el = createSpan({ cls: makeProofClasses(this.which, profile) });
-        el.replaceChildren(...children);
-        this.containerEl.replaceWith(el);
-        this.containerEl = el;
-      }
-    }
-  }
-};
-var createProofProcessor = (plugin) => (element, context) => {
-  if (!plugin.extraSettings.enableProof)
-    return;
-  const { app } = plugin;
-  const file = app.vault.getAbstractFileByPath(context.sourcePath);
-  if (!(file instanceof import_obsidian23.TFile))
-    return;
-  const settings = resolveSettings(void 0, plugin, file);
-  const codes = element.querySelectorAll("code");
-  for (const code of codes) {
-    const text = code.textContent;
-    if (!text)
-      continue;
-    if (text.startsWith(settings.beginProof)) {
-      const rest = text.slice(settings.beginProof.length);
-      let displayMatch;
-      if (!rest) {
-        context.addChild(new ProofRenderer(app, plugin, code, "begin", file));
-      } else if (displayMatch = rest.match(/^\[(.*)\]$/)) {
-        const display = displayMatch[1];
-        context.addChild(new ProofRenderer(app, plugin, code, "begin", file, display));
-      }
-    } else if (code.textContent == settings.endProof) {
-      context.addChild(new ProofRenderer(app, plugin, code, "end", file));
-    }
-  }
-};
-var ProofWidget = class _ProofWidget extends import_view4.WidgetType {
-  constructor(which, pos, profile, sourcePath, plugin) {
-    super();
-    this.which = which;
-    this.pos = pos;
-    this.profile = profile;
-    this.sourcePath = sourcePath;
-    this.plugin = plugin;
-  }
-  toDOM(view) {
-    if (this.which == "begin" && this.sourcePath && this.plugin) {
-      const el = createSpan({ cls: makeProofClasses(this.which, this.profile) });
-      const display = this.pos.linktext ? `${this.profile.body.proof.linkedBeginPrefix} [[${this.pos.linktext}]]${this.profile.body.proof.linkedBeginSuffix}` : this.pos.display;
-      if (display) {
-        _ProofWidget.renderDisplay(el, display, this.sourcePath, this.plugin);
-        return el;
-      }
-    }
-    return makeProofElement(this.which, this.profile);
-  }
-  static async renderDisplay(el, display, sourcePath, plugin) {
-    const children = await renderMarkdown(display, sourcePath, plugin);
-    if (children) {
-      el.replaceChildren(...children);
-    }
-  }
-  ignoreEvent(event) {
-    return false;
-  }
-};
-var proofPositionFieldFactory = (plugin) => import_state4.StateField.define({
-  create(state) {
-    return makeField(state, plugin);
-  },
-  update(value, tr) {
-    if (!tr.docChanged) {
-      return value;
-    }
-    return makeField(tr.state, plugin);
-  }
-});
-function makeField(state, plugin) {
-  const file = state.field(import_obsidian23.editorInfoField).file;
-  if (!file)
-    return [];
-  const settings = resolveSettings(void 0, plugin, file);
-  const field = [];
-  const tree = (0, import_language3.syntaxTree)(state);
-  let begin;
-  let end;
-  let display;
-  let displayMatch;
-  let linktext;
-  let linknodes;
-  tree.iterate({
-    enter(node) {
-      var _a, _b, _c, _d, _e, _f;
-      if (node.name == INLINE_CODE) {
-        const text = nodeText(node, state);
-        if (text.startsWith(settings.beginProof)) {
-          const rest = text.slice(settings.beginProof.length);
-          if (!rest) {
-            begin = { from: node.from - 1, to: node.to + 1 };
-          } else if (displayMatch = rest.match(/^\[(.*)\]$/)) {
-            display = displayMatch[1];
-            begin = { from: node.from - 1, to: node.to + 1 };
-          }
-          if (begin && state.sliceDoc(node.to + 1, node.to + 2) == "@") {
-            const next = (_a = node.node.nextSibling) == null ? void 0 : _a.nextSibling;
-            const afterNext = (_c = (_b = node.node.nextSibling) == null ? void 0 : _b.nextSibling) == null ? void 0 : _c.nextSibling;
-            const afterAfterNext = (_f = (_e = (_d = node.node.nextSibling) == null ? void 0 : _d.nextSibling) == null ? void 0 : _e.nextSibling) == null ? void 0 : _f.nextSibling;
-            if ((next == null ? void 0 : next.name) == LINK_BEGIN && (afterNext == null ? void 0 : afterNext.name) == LINK && (afterAfterNext == null ? void 0 : afterAfterNext.name) == LINK_END) {
-              linktext = nodeText(afterNext, state);
-              linknodes = { linkBegin: next, link: afterNext, linkEnd: afterAfterNext };
-            }
-          }
-        } else if (text == settings.endProof) {
-          if (begin) {
-            end = { from: node.from - 1, to: node.to + 1 };
-            field.push({ begin, end, display, linktext, linknodes });
-          }
-          begin = void 0;
-          end = void 0;
-          display = void 0;
-          linktext = void 0;
-          linknodes = void 0;
-        }
-      }
-    }
-  });
-  return field;
-}
-var proofDecorationFactory = (plugin) => import_view4.ViewPlugin.fromClass(
-  class {
-    constructor(view) {
-      this.impl(view);
-    }
-    update(update2) {
-      this.impl(update2.view);
-    }
-    impl(view) {
-      const file = view.state.field(import_obsidian23.editorInfoField).file;
-      if (!file) {
-        this.decorations = import_view4.Decoration.none;
-        return;
-      }
-      const settings = resolveSettings(void 0, plugin, file);
-      const profile = plugin.extraSettings.profiles[settings.profile];
-      const builder = new import_state4.RangeSetBuilder();
-      const range = view.state.selection.main;
-      const positions = view.state.field(plugin.proofPositionField);
-      for (const pos of positions) {
-        if (pos.begin) {
-          if (pos.linktext && pos.linknodes) {
-            if (!hasOverlap({ from: pos.begin.from, to: pos.linknodes.linkEnd.to }, range)) {
-              builder.add(
-                pos.begin.from,
-                pos.linknodes.linkEnd.to,
-                import_view4.Decoration.replace({
-                  widget: new ProofWidget("begin", pos, profile, file.path, plugin)
-                })
-              );
-            }
-          } else if (!hasOverlap(pos.begin, range)) {
-            builder.add(
-              pos.begin.from,
-              pos.begin.to,
-              import_view4.Decoration.replace({
-                widget: new ProofWidget("begin", pos, profile, file.path, plugin)
-              })
-            );
-          }
-        }
-        if (pos.end && !hasOverlap(pos.end, range)) {
-          builder.add(
-            pos.end.from,
-            pos.end.to,
-            import_view4.Decoration.replace({
-              widget: new ProofWidget("end", pos, profile)
-            })
-          );
-        }
-      }
-      this.decorations = builder.finish();
-    }
-  },
-  {
-    decorations: (instance) => instance.decorations
-  }
-);
-var proofFoldFactory = (plugin) => import_language3.foldService.of((state, lineStart, lineEnd) => {
-  const positions = state.field(plugin.proofPositionField);
-  for (const pos of positions) {
-    if (pos.begin && pos.end && lineStart <= pos.begin.from && pos.begin.to <= lineEnd) {
-      return { from: pos.begin.to, to: pos.end.to };
-    }
-  }
-  return null;
-});
-function insertProof(plugin, editor, context) {
-  if (context.file) {
-    const settings = resolveSettings(void 0, plugin, context.file);
-    const cursor = editor.getCursor();
-    editor.replaceRange(`\`${settings.beginProof}\`
-
-\`${settings.endProof}\``, cursor);
-    editor.setCursor({ line: cursor.line + 1, ch: 0 });
-  }
-}
-
 // src/index/manager.ts
 var import_obsidian25 = require("obsidian");
 
@@ -4460,7 +4206,7 @@ var _InvertedIndex = class _InvertedIndex {
 _InvertedIndex.EMPTY_SET = /* @__PURE__ */ new Set();
 var InvertedIndex = _InvertedIndex;
 
-// src/index/index.ts
+// src/index/math-index.ts
 var MathIndex = class {
   /** Tracks the existence of fields (indexed by normalized key name). */
   // private fields: Map<string, FieldIndex>; // irrelevant because we are not going to search/query
@@ -4592,7 +4338,6 @@ var MathIndex = class {
    * Warning: This function doesn't trigger MathLinks.update(), so you have to call it by yourself!
    */
   updateNames(file) {
-    console.log("Updating names for " + file.path);
     const settings = resolveSettings(void 0, this.plugin, file);
     let blockOrdinal = 1;
     let block;
@@ -4623,7 +4368,7 @@ var MathIndex = class {
         let refName = null;
         if (block.$manualTag) {
           printName = `(${block.$manualTag})`;
-        } else if (block.$link && this.isLinked(block)) {
+        } else if (!settings.numberOnlyReferencedEquations || block.$link && this.isLinked(block)) {
           block.$index = equationCount;
           printName = "(" + eqPrefix + CONVERTER[settings.eqNumberStyle](equationNumberInit + equationCount) + eqSuffix + ")";
           equationCount++;
@@ -4647,9 +4392,7 @@ var MathIndex = class {
           page.$refName = this.formatMathLink(file, resolvedSettings, "noteMathLinkFormat");
       }
     }
-    console.log("updating names finished, triggering index-updated event");
     this.plugin.indexManager.trigger("index-updated", file);
-    console.log("index-updated event triggered");
   }
   formatMathLink(file, resolvedSettings, key) {
     const refFormat = resolvedSettings[key];
@@ -4667,6 +4410,18 @@ var MathIndex = class {
   }
   getByType(type) {
     return this.types.get(type);
+  }
+  getMarkdownPage(path) {
+    const page = this.load(path);
+    return MarkdownPage.isMarkdownPage(page) ? page : null;
+  }
+  getTheoremCalloutBlock(id) {
+    const block = this.load(id);
+    return TheoremCalloutBlock.isTheoremCalloutBlock(block) ? block : null;
+  }
+  getEquationBlock(id) {
+    const block = this.load(id);
+    return EquationBlock.isEquationBlock(block) ? block : null;
   }
 };
 function iterableExists(object, key) {
@@ -4755,7 +4510,7 @@ var MathIndexManager = class extends import_obsidian25.Component {
   async rename(file, oldPath) {
     if (!(file instanceof import_obsidian25.TFile))
       return;
-    this.plugin.settings[file.path] = JSON.parse(JSON.stringify(this.plugin.settings[oldPath]));
+    this.plugin.settings[file.path] = structuredClone(this.plugin.settings[oldPath]);
     delete this.plugin.settings[oldPath];
     this.plugin.excludedFiles.remove(oldPath);
     this.plugin.excludedFiles.push(file.path);
@@ -4823,8 +4578,6 @@ var MathIndexManager = class extends import_obsidian25.Component {
       update(this.app, fileToBeUpdated);
     });
     this.trigger("update", this.revision);
-    console.log("about to call MathLinks.update");
-    console.log("MathLinks.update called");
   }
   async updateLinkedOnDeltion(file) {
     const toBeUpdated = /* @__PURE__ */ new Set();
@@ -4961,7 +4714,7 @@ var DependencyNotificationModal = class extends import_obsidian27.Modal {
   }
   showDependencies() {
     this.contentEl.createDiv({
-      text: `${this.plugin.manifest.name} requires the following plugins to work properly. Disable it once, install/update & enable the dependencies and enable it again.`,
+      text: `${this.plugin.manifest.name} requires the following plugin to work properly.`,
       attr: { style: "margin-bottom: 1em;" }
     });
     for (const depenedency of Object.values(this.plugin.dependencies)) {
@@ -5004,18 +4757,19 @@ To fully enjoy Math Booster v2, click the button below to convert the old theore
       `### What's new in version 2
 
 - [New format for theorem callouts](https://ryotaushio.github.io/obsidian-math-booster/theorem-callouts/theorem-callouts.html):
-    - much cleaner,
-    - more intuitive,
-    - more keyboard-friendly,
-    - and less plugin-dependent than the previous format
-- New indexing mechanism:
-    - no longer blocks UI
-    - no longer hard-codes theorem indices in notes directly
-- [Editor auto-completion](https://ryotaushio.github.io/obsidian-math-booster/search-&-link-auto-completion/editor-auto-completion.html) improvements: filter theorems & equations (entire vault/recent notes/active note/dataview queries)
-- [Search modal](https://ryotaushio.github.io/obsidian-math-booster/search-&-link-auto-completion/search-modal.html): more control & flexibility than editor auto-completion
-- Adding metadata to theorems and equations with comments
-    - e.g. display name of equations
-- Theorem/equation numbers now can be displayed *almost everywhere*:
+    -   *much cleaner*,
+    -   *more intuitive*,
+    -   *more keyboard-friendly*,
+    -   and *less plugin-dependent* than the previous format
+-   New indexing mechanism:
+    -   no longer blocks UI
+    -   no longer hard-codes theorem indices in notes directly
+-   [Enhancing Obsidian's built-in link completion](https://ryotaushio.github.io/obsidian-math-booster/search-&-link-auto-completion/enhancing-obsidian's-built-in-link-completion.html): now equations are rendered in the built-in completion as well.
+-   [Custom link completion](https://ryotaushio.github.io/obsidian-math-booster/search-&-link-auto-completion/custom-link-completion.html) improvements: filter theorems & equations (*entire vault/recent notes/active note*)
+-   [Search modal](https://ryotaushio.github.io/obsidian-math-booster/search-&-link-auto-completion/search-modal.html): more control & flexibility than editor auto-completion, including *Dataview queries*
+-   Adding metadata to [theorems](https://ryotaushio.github.io/obsidian-math-booster/theorem-callouts/theorem-callouts.html) and [equations](https://ryotaushio.github.io/obsidian-math-booster/equations.html) with comments
+- Theorem numbers and [equation numbers](https://ryotaushio.github.io/obsidian-math-booster/equations.html) now can be displayed *almost everywhere*:
+        
 ##### Version 1:
 
 |                    | Theorem number | Equation number |
@@ -5577,9 +5331,272 @@ function renderInSuggestionTitleEl(el, cb) {
     cb(suggestionTitleEl);
 }
 
+// src/proof/live-preview.ts
+var import_obsidian34 = require("obsidian");
+var import_state4 = require("@codemirror/state");
+var import_view4 = require("@codemirror/view");
+var import_language3 = require("@codemirror/language");
+
+// src/proof/common.ts
+function makeProofClasses(which, profile) {
+  return [
+    "math-booster-" + which + "-proof",
+    ...profile.meta.tags.map((tag) => "math-booster-" + which + "-proof-" + tag)
+  ];
+}
+function makeProofElement(which, profile) {
+  return createSpan({
+    text: profile.body.proof[which],
+    cls: makeProofClasses(which, profile)
+  });
+}
+
+// src/proof/live-preview.ts
+var INLINE_CODE = "inline-code";
+var LINK_BEGIN = "formatting-link_formatting-link-start";
+var LINK = "hmd-internal-link";
+var LINK_END = "formatting-link_formatting-link-end";
+var ProofWidget = class extends import_view4.WidgetType {
+  constructor(plugin, profile) {
+    super();
+    this.plugin = plugin;
+    this.profile = profile;
+    this.containerEl = null;
+  }
+  eq(other) {
+    return this.profile.id === other.profile.id;
+  }
+  toDOM() {
+    var _a;
+    return (_a = this.containerEl) != null ? _a : this.containerEl = this.initDOM();
+  }
+  ignoreEvent(event) {
+    return false;
+  }
+};
+var BeginProofWidget = class _BeginProofWidget extends ProofWidget {
+  constructor(plugin, profile, display, linktext, sourcePath) {
+    super(plugin, profile);
+    this.display = display;
+    this.linktext = linktext;
+    this.sourcePath = sourcePath;
+  }
+  eq(other) {
+    return this.profile.id === other.profile.id && this.display === other.display && this.linktext === other.linktext && this.sourcePath == other.sourcePath;
+  }
+  initDOM() {
+    let display = this.linktext ? `${this.profile.body.proof.linkedBeginPrefix} [[${this.linktext}]]${this.profile.body.proof.linkedBeginSuffix}` : this.display;
+    if (display) {
+      const el = createSpan({ cls: makeProofClasses("begin", this.profile) });
+      _BeginProofWidget.renderDisplay(el, display, this.sourcePath, this.plugin);
+      return el;
+    }
+    return makeProofElement("begin", this.profile);
+  }
+  static async renderDisplay(el, display, sourcePath, plugin) {
+    const children = await renderMarkdown(display, sourcePath, plugin);
+    if (children) {
+      el.replaceChildren(...children);
+    }
+  }
+};
+var EndProofWidget = class extends ProofWidget {
+  initDOM() {
+    return makeProofElement("end", this.profile);
+  }
+};
+var createProofDecoration = (plugin) => import_view4.ViewPlugin.fromClass(
+  class {
+    constructor(view) {
+      this.decorations = this.makeDeco(view);
+    }
+    update(update2) {
+      if (update2.docChanged || update2.viewportChanged || update2.selectionSet) {
+        this.decorations = this.makeDeco(update2.view);
+      }
+    }
+    makeDeco(view) {
+      var _a;
+      const { state } = view;
+      const { app } = plugin;
+      const tree = (0, import_language3.syntaxTree)(state);
+      const ranges = state.selection.ranges;
+      const file = state.field(import_obsidian34.editorInfoField).file;
+      const sourcePath = (_a = file == null ? void 0 : file.path) != null ? _a : "";
+      const settings = resolveSettings(void 0, plugin, file != null ? file : app.vault.getRoot());
+      const profile = plugin.extraSettings.profiles[settings.profile];
+      const builder = new import_state4.RangeSetBuilder();
+      for (const { from, to } of view.visibleRanges) {
+        tree.iterate({
+          from,
+          to,
+          enter(node) {
+            var _a2, _b, _c, _d, _e, _f;
+            if (node.name !== INLINE_CODE)
+              return;
+            let start = -1;
+            let end = -1;
+            let display = null;
+            let linktext = null;
+            const text = nodeText(node, state);
+            if (text.startsWith(settings.beginProof)) {
+              const rest = text.slice(settings.beginProof.length);
+              if (!rest) {
+                start = node.from - 1;
+                end = node.to + 1;
+                display = null;
+              } else {
+                const match = rest.match(/^\[(.*)\]$/);
+                if (match) {
+                  start = node.from - 1;
+                  end = node.to + 1;
+                  display = match[1];
+                }
+              }
+              if (start === -1 || end === -1)
+                return;
+              if (state.sliceDoc(node.to + 1, node.to + 2) == "@") {
+                const next = (_a2 = node.node.nextSibling) == null ? void 0 : _a2.nextSibling;
+                const afterNext = (_c = (_b = node.node.nextSibling) == null ? void 0 : _b.nextSibling) == null ? void 0 : _c.nextSibling;
+                const afterAfterNext = (_f = (_e = (_d = node.node.nextSibling) == null ? void 0 : _d.nextSibling) == null ? void 0 : _e.nextSibling) == null ? void 0 : _f.nextSibling;
+                if ((next == null ? void 0 : next.name) === LINK_BEGIN && (afterNext == null ? void 0 : afterNext.name) === LINK && (afterAfterNext == null ? void 0 : afterAfterNext.name) === LINK_END) {
+                  linktext = nodeText(afterNext, state);
+                  end = afterAfterNext.to;
+                }
+              }
+              if (!rangesHaveOverlap(ranges, start, end)) {
+                builder.add(
+                  start,
+                  end,
+                  import_view4.Decoration.replace({
+                    widget: new BeginProofWidget(plugin, profile, display, linktext, sourcePath)
+                  })
+                );
+              }
+            } else if (text === settings.endProof) {
+              start = node.from - 1;
+              end = node.to + 1;
+              if (!rangesHaveOverlap(ranges, start, end)) {
+                builder.add(
+                  start,
+                  end,
+                  import_view4.Decoration.replace({
+                    widget: new EndProofWidget(plugin, profile)
+                  })
+                );
+              }
+            }
+          }
+        });
+      }
+      return builder.finish();
+    }
+  },
+  {
+    decorations: (instance) => instance.decorations
+  }
+);
+
+// src/proof/reading-view.ts
+var import_obsidian35 = require("obsidian");
+var createProofProcessor = (plugin) => (element, context) => {
+  if (!plugin.extraSettings.enableProof)
+    return;
+  const { app } = plugin;
+  const file = app.vault.getAbstractFileByPath(context.sourcePath);
+  if (!(file instanceof import_obsidian35.TFile))
+    return;
+  const settings = resolveSettings(void 0, plugin, file);
+  const codes = element.querySelectorAll("code");
+  for (const code of codes) {
+    const text = code.textContent;
+    if (!text)
+      continue;
+    if (text.startsWith(settings.beginProof)) {
+      const rest = text.slice(settings.beginProof.length);
+      let displayMatch;
+      if (!rest) {
+        context.addChild(new ProofRenderer(app, plugin, code, "begin", file));
+      } else if (displayMatch = rest.match(/^\[(.*)\]$/)) {
+        const display = displayMatch[1];
+        context.addChild(new ProofRenderer(app, plugin, code, "begin", file, display));
+      }
+    } else if (code.textContent == settings.endProof) {
+      context.addChild(new ProofRenderer(app, plugin, code, "end", file));
+    }
+  }
+};
+function parseAtSignLink(codeEl) {
+  const next = codeEl.nextSibling;
+  const afterNext = next == null ? void 0 : next.nextSibling;
+  const afterAfterNext = afterNext == null ? void 0 : afterNext.nextSibling;
+  if (afterNext) {
+    if (next.nodeType == Node.TEXT_NODE && next.textContent == "@" && afterNext instanceof HTMLElement && afterNext.matches("a.original-internal-link") && afterAfterNext instanceof HTMLElement && afterAfterNext.matches("a.mathLink-internal-link")) {
+      return { atSign: next, links: [afterNext, afterAfterNext] };
+    }
+  }
+}
+var ProofRenderer = class extends import_obsidian35.MarkdownRenderChild {
+  constructor(app, plugin, containerEl, which, file, display) {
+    super(containerEl);
+    this.app = app;
+    this.plugin = plugin;
+    this.which = which;
+    this.file = file;
+    this.display = display;
+    this.atSignParseResult = parseAtSignLink(this.containerEl);
+  }
+  onload() {
+    this.update();
+    this.registerEvent(
+      this.plugin.indexManager.on("local-settings-updated", (file) => {
+        if (file == this.file) {
+          this.update();
+        }
+      })
+    );
+    this.registerEvent(
+      this.plugin.indexManager.on("global-settings-updated", () => {
+        this.update();
+      })
+    );
+  }
+  update() {
+    const settings = resolveSettings(void 0, this.plugin, this.file);
+    const profile = this.plugin.extraSettings.profiles[settings.profile];
+    if (this.atSignParseResult) {
+      const { atSign, links } = this.atSignParseResult;
+      const newEl2 = createSpan({ cls: makeProofClasses(this.which, profile) });
+      newEl2.replaceChildren(profile.body.proof.linkedBeginPrefix, ...links, profile.body.proof.linkedBeginSuffix);
+      this.containerEl.replaceWith(newEl2);
+      this.containerEl = newEl2;
+      atSign.textContent = "";
+      return;
+    }
+    if (this.display) {
+      this.renderDisplay(profile);
+      return;
+    }
+    const newEl = makeProofElement(this.which, profile);
+    this.containerEl.replaceWith(newEl);
+    this.containerEl = newEl;
+  }
+  async renderDisplay(profile) {
+    if (this.display) {
+      const children = await renderMarkdown(this.display, this.file.path, this.plugin);
+      if (children) {
+        const el = createSpan({ cls: makeProofClasses(this.which, profile) });
+        el.replaceChildren(...children);
+        this.containerEl.replaceWith(el);
+        this.containerEl = el;
+      }
+    }
+  }
+};
+
 // src/main.ts
 var VAULT_ROOT = "/";
-var MathBooster3 = class extends import_obsidian34.Plugin {
+var MathBooster3 = class extends import_obsidian36.Plugin {
   constructor() {
     super(...arguments);
     this.dependencies = {
@@ -5613,7 +5630,7 @@ var MathBooster3 = class extends import_obsidian34.Plugin {
       // this.app.metadataCache.on("math-booster:local-settings-updated", async (file) => {
       this.indexManager.on("local-settings-updated", async (file) => {
         this.app.workspace.iterateRootLeaves((leaf) => {
-          if (leaf.view instanceof import_obsidian34.MarkdownView) {
+          if (leaf.view instanceof import_obsidian36.MarkdownView) {
             this.setProfileTagAsCSSClass(leaf.view);
           }
         });
@@ -5622,7 +5639,7 @@ var MathBooster3 = class extends import_obsidian34.Plugin {
     this.registerEvent(
       this.indexManager.on("global-settings-updated", async () => {
         this.app.workspace.iterateRootLeaves((leaf) => {
-          if (leaf.view instanceof import_obsidian34.MarkdownView) {
+          if (leaf.view instanceof import_obsidian36.MarkdownView) {
             this.setProfileTagAsCSSClass(leaf.view);
           }
         });
@@ -5630,14 +5647,14 @@ var MathBooster3 = class extends import_obsidian34.Plugin {
     );
     this.app.workspace.onLayoutReady(() => {
       this.app.workspace.iterateRootLeaves((leaf) => {
-        if (leaf.view instanceof import_obsidian34.MarkdownView) {
+        if (leaf.view instanceof import_obsidian36.MarkdownView) {
           this.setProfileTagAsCSSClass(leaf.view);
         }
       });
     });
     this.registerEvent(
       this.app.workspace.on("active-leaf-change", (leaf) => {
-        if ((leaf == null ? void 0 : leaf.view) instanceof import_obsidian34.MarkdownView) {
+        if ((leaf == null ? void 0 : leaf.view) instanceof import_obsidian36.MarkdownView) {
           this.setProfileTagAsCSSClass(leaf.view);
         }
       })
@@ -5865,9 +5882,7 @@ var MathBooster3 = class extends import_obsidian34.Plugin {
       this.editorExtensions.push(hideDisplayMathPreviewInQuote);
     }
     if (this.extraSettings.enableProof) {
-      this.editorExtensions.push(this.proofPositionField = proofPositionFieldFactory(this));
-      this.editorExtensions.push(proofDecorationFactory(this));
-      this.editorExtensions.push(proofFoldFactory(this));
+      this.editorExtensions.push(createProofDecoration(this));
     }
     this.app.workspace.updateOptions();
   }
@@ -5909,7 +5924,7 @@ var MathBooster3 = class extends import_obsidian34.Plugin {
       id: "open-local-settings-for-current-note",
       name: "Open local settings for the current note",
       callback: () => {
-        const view = this.app.workspace.getActiveViewOfType(import_obsidian34.MarkdownView);
+        const view = this.app.workspace.getActiveViewOfType(import_obsidian36.MarkdownView);
         if (view == null ? void 0 : view.file) {
           new ContextSettingModal(this.app, this, view.file).open();
         }

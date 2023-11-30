@@ -12,9 +12,9 @@
 - [[Rendering equations inside callouts]]
 - [[Multi-line equation support inside blockquotes]]
 - [[Clever referencing]]
-- [[Search & link auto-completion]]
-	- [[Enhancing Obsidian's built-in link completion]]
-	- [[Custom link completion]]
+- [[Search & link autocomplete]]
+	- [[Enhancing Obsidian's built-in link autocomplete]]
+	- [[Custom link autocomplete]]
 	- [[Search modal]]
 - [[Proof environment|Proof environment (experimental)]]
 
