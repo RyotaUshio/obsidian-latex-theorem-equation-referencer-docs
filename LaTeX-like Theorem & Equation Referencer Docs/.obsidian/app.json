@@ -1,0 +1,27 @@
+{
+  "newFileLocation": "folder",
+  "newFileFolderPath": "Inbox",
+  "alwaysUpdateLinks": true,
+  "attachmentFolderPath": "Assets",
+  "showUnsupportedFiles": true,
+  "strictLineBreaks": false,
+  "livePreview": true,
+  "showInlineTitle": false,
+  "propertiesInDocument": "visible",
+  "pdfExportSettings": {
+    "pageSize": "A4",
+    "landscape": false,
+    "margin": "0",
+    "downscalePercent": 84
+  },
+  "useMarkdownLinks": false,
+  "newLinkFormat": "shortest",
+  "spellcheck": false,
+  "showLineNumber": true,
+  "showIndentGuide": false,
+  "vimMode": false,
+  "autoPairMarkdown": false,
+  "autoPairBrackets": false,
+  "mobilePullAction": "darlal-switcher-plus:switcher-plus:open-commands",
+  "defaultViewMode": "preview"
+}

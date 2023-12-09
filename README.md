@@ -1,21 +1,21 @@
-# Obsidian Math Booster Docs
+# Obsidian LaTeX-like Theorem & Equation Referencer Docs
 
-This repository contains an Obsidian vault that generates the [documentation website](https://ryotaushio.github.io/obsidian-math-booster/) for [Math Booster](https://github.com/RyotaUshio/obsidian-math-booster), an [Obsidian.md](https://obsidian.md) plugin for mathematical note-takers.
+This repository contains an Obsidian vault that generates the [documentation website](https://ryotaushio.github.io/obsidian-latex-theorem-equation-referencer/) for [LaTeX-like Theorem & Equation Referencer](https://github.com/RyotaUshio/obsidian-latex-theorem-equation-referencer), an [Obsidian.md](https://obsidian.md) plugin for mathematical note-takers.
 
 ## Contributing to the docs
 
-The vault is located under the `Math Booster Docs` folder of this repository. To contribute:
+The vault is located under the `LaTeX-like Theorem & Equation Referencer Docs` folder of this repository. To contribute:
 
 1. [Fork](https://docs.github.com/ja/get-started/quickstart/fork-a-repo) the repository and clone the fork.
    ```
-    git clone https://github.com/<YOUR NAME>/math-booster-docs.git
+    git clone https://github.com/<YOUR NAME>/obsidian-latex-theorem-equation-referencer-docs.git
     ```
-2. Open the `Math Booster Docs` folder under the cloned repository as an Obsidian vault ([Obsidian Help](https://help.obsidian.md/Getting+started/Create+a+vault#Open+existing+folder)).
+2. Open the `LaTeX-like Theorem & Equation Referencer Docs` folder under the cloned repository as an Obsidian vault ([Obsidian Help](https://help.obsidian.md/Getting+started/Create+a+vault#Open+existing+folder)).
 3. Make changes in Obsidian so that links are properly updated.
 4. Commit & push your changes to the fork and [make a pull request](https://docs.github.com/ja/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request) to the original repository.
 
 > [!note]
-> This documentation website is generated from the `Math Booster Docs` vault using the awesome [Webpage HTML Export](https://github.com/KosmosisDire/obsidian-webpage-export) plugin.
+> This documentation website is generated from the `LaTeX-like Theorem & Equation Referencer Docs` vault using the awesome [Webpage HTML Export](https://github.com/KosmosisDire/obsidian-webpage-export) plugin.
 
 ## Say thank you
 

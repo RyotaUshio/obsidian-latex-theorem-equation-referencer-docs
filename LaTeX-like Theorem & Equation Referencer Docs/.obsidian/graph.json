@@ -1,0 +1,44 @@
+{
+  "collapse-filter": false,
+  "search": "  -path:Templates  -path:Excalidraw/Fonts -path:Excalidraw/Scripts  -path:Plugins  ",
+  "showTags": false,
+  "showAttachments": false,
+  "hideUnresolved": false,
+  "showOrphans": true,
+  "collapse-color-groups": true,
+  "colorGroups": [
+    {
+      "query": "path:Daily  ",
+      "color": {
+        "a": 1,
+        "rgb": 14701138
+      }
+    },
+    {
+      "query": "obsidian",
+      "color": {
+        "a": 1,
+        "rgb": 14725458
+      }
+    },
+    {
+      "query": "tag:#english/dictionary  ",
+      "color": {
+        "a": 1,
+        "rgb": 5816918
+      }
+    }
+  ],
+  "collapse-display": false,
+  "showArrow": false,
+  "textFadeMultiplier": 0,
+  "nodeSizeMultiplier": 1,
+  "lineSizeMultiplier": 1.55448811848958,
+  "collapse-forces": false,
+  "centerStrength": 0.298583984375,
+  "repelStrength": 16.4990234375,
+  "linkStrength": 0.295003255208333,
+  "linkDistance": 275,
+  "scale": 0.4791810068457016,
+  "close": true
+}
